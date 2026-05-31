@@ -16,7 +16,7 @@ body { font-family: 'Roboto', sans-serif; background: var(--bg); color: var(--te
 .bg-bar { position: absolute; border-radius: 999px; will-change: transform, opacity; opacity: 1; transition: opacity 3s ease; background: linear-gradient(180deg, transparent 0%, transparent 10%, rgba(0,212,255,.06) 25%, rgba(0,212,255,.25) 50%, rgba(0,212,255,.06) 75%, transparent 90%, transparent 100%); box-shadow: 0 0 12px rgba(0,212,255,.12); }
 .bg-bar.dim { opacity: 0.1; }
 .bg-bar.purple { background: linear-gradient(180deg, transparent 0%, transparent 10%, rgba(123,97,255,.05) 25%, rgba(123,97,255,.2) 50%, rgba(123,97,255,.05) 75%, transparent 90%, transparent 100%); box-shadow: 0 0 10px rgba(123,97,255,.1); }
-.main-wrap { position: relative; z-index: 1; padding: 16px 0; }
+.main-wrap { position: relative; z-index: 1; padding: 16px 0 80px; }
 .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
 .header-title { font-size: 1.4rem; font-weight: 900; letter-spacing: -.5px; }
 .header-info { display: flex; align-items: center; gap: 10px; }
@@ -156,7 +156,7 @@ body { font-family: 'Roboto', sans-serif; background: var(--bg); color: var(--te
 </div>
 </div>
 
-<div style="text-align:center;padding:20px 0 12px;border-top:1px solid rgba(255,255,255,.04);margin-top:8px;position:relative;z-index:1">
+<div style="text-align:center;padding:12px 0 10px;border-top:1px solid rgba(255,255,255,.04);position:fixed;bottom:0;left:0;right:0;z-index:10;background:var(--bg)">
   <svg viewBox="0 0 155 205" style="width:32px;height:auto;opacity:.4;display:inline-block">
     <rect x="7" y="7" width="141" height="191" rx="15" ry="15" fill="none" stroke="url(#ptg)" stroke-width="4"/>
     <text x="50%" y="50%" text-anchor="middle" fill="url(#ptg)" font-size="140" font-weight="900" dy=".3em">P</text>
