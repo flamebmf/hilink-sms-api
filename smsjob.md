@@ -85,6 +85,21 @@ WebUI API map expansion:
 - Kept destructive/system-changing WebUI endpoints out of the generic POST allowlist by default.
 - Perl syntax check passes after adding the allowlist API.
 
+## 2026-06-01 — Dashboard redesigned in PlurumTech style
+
+Status: `hilink-dash.html` полностью переработан в тёмной теме PlurumTech.
+
+Changed:
+- Стиль: фон `#04070d`, акценты `#00d4ff`/`#7b61ff`, шрифт Roboto, glassmorphism-карточки.
+- Анимированные фоновые полосы (как на plurumtech.com).
+- Кастомные табы вместо nav-pills.
+- Pt-лого (SVG) внизу экрана (fixed, без фона), текст "PlurumTech" — "Plurum" белый, "Tech" градиент.
+- Git: коммиты `e0fed44`, `40f42b9`, `456112a`, `ecbc383`, `88fcd9c`, `d495587`, `2562f41`, `cd842b9`, `0beb83c`.
+
+Verified:
+- `curl http://192.168.5.20/hilink-dash.html` → 200 OK.
+- Все табы загружают данные с CGI.
+
 ## Current Ready State
 
 Status: working SMS gateway and partial modem API are implemented in `sms-gw.pl`.
