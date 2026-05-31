@@ -173,9 +173,23 @@ Verified:
 ## Git
 - First commit: initial project — working SMS gateway, Zabbix webhook, E3372-325 extracted WebUI.
 
+## 2026-06-01 — File-based logging added and deployed
+
+Status: Logging added to `/var/www/cgi-bin/log/hilink-sms.log` and working.
+
+Changed:
+- Added `log_msg` sub with timestamp, level, client IP, PID.
+- `$LOG_FILE` = `/var/www/cgi-bin/log/hilink-sms.log` (in a `log/` subdir next to the script).
+- Logs: every incoming action, send_sms debug/ok/fail, unknown actions.
+- Deployed via SCP to `192.168.5.20` (SSH key auth).
+- Created `/var/www/cgi-bin/log/` with 777 permissions (apache user needs write).
+
+Verified:
+- Log written and readable: shows full SMS flow (action → send → OK).
+- `perl -c sms-gw.pl` — OK.
+
 Recommended next steps:
 - Move Hilink modem logic from `sms-gw.pl` into a reusable Perl module, for example `Hilink/Brovi.pm`.
 - Add explicit safe actions for `ussd`, `mark-read`, `phonebook-list`, and optional `data-on/data-off` only after confirming desired XML bodies.
-- Add file-based logging to `sms-gw.pl` (e.g., `/var/log/hilink-sms.log`).
 - Create Raspberry Pi 3 system image specification and build plan.
 - Add access control for CGI if exposed beyond the trusted LAN.

@@ -13,7 +13,7 @@ $| = 1;
 
 my $MODEM = 'http://192.168.8.1';
 my $JOB_DIR = '/tmp/hilink-sms-jobs';
-my $LOG_FILE = '/var/log/hilink-sms.log';
+my $LOG_FILE = '/var/www/cgi-bin/log/hilink-sms.log';
 my $q = CGI->new;
 my $action = $q->param('action') || '';
 
@@ -22,8 +22,8 @@ sub log_msg {
     my $ts = strftime('%Y-%m-%d %H:%M:%S', localtime());
     my $from = $ENV{REMOTE_ADDR} || 'unknown';
     my $pid = $$;
-    open my $fh, '>>', $LOG_FILE;
-    print {$fh} "$ts [$level] [$from] [pid=$pid] $msg\n" if $fh;
+    open my $fh, '>>', $LOG_FILE or warn "log_open_fail: $! [$LOG_FILE]";
+    print {$fh} "$ts [$level] [$from] [pid=$pid] $msg\n" or warn "log_print_fail: $!";
     close $fh;
 }
 
@@ -441,6 +441,7 @@ sub get_job_xml {
 sub debug_session {
     my ($sess, $token) = hi_get_session();
     my ($post_sess, $post_token) = hi_get_post_token();
+    log_msg('DEBUG', "debug_session called");
     return "session=" . ($sess ? 'yes' : 'no') . "\n"
         . "token=" . ($token ? 'yes' : 'no') . "\n"
         . "post_session=" . ($post_sess ? 'yes' : 'no') . "\n"
