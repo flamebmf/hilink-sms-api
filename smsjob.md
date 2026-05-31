@@ -173,6 +173,18 @@ Verified:
 ## Git
 - First commit: initial project — working SMS gateway, Zabbix webhook, E3372-325 extracted WebUI.
 
+## 2026-06-01 — Web Dashboard UI added and deployed
+
+Status: Web dashboard at `http://192.168.5.20/hilink-dash.html` — shows device info, signal, network, SMS stats, config, inbox.
+
+Changed:
+- Created `hilink-dash.html` — single-file Bootstrap dashboard with 6 tabs (Device, Signal, Network, SMS, Config, Inbox).
+- Fetches data from `sms-gw.pl` CGI via JS `fetch()` and renders in info grids/tables.
+- Signal tab: visual signal bars + RSRP/RSRQ/RSSI/SINR + quality badge.
+- Inbox tab: SMS list table with index, sender, message, date.
+- Auto-refresh every 30s.
+- Deployed to `/var/www/html/hilink-dash.html`.
+
 ## 2026-06-01 — File-based logging added and deployed
 
 Status: Logging added to `/var/www/cgi-bin/log/hilink-sms.log` and working.
