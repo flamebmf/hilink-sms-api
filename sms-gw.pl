@@ -13,8 +13,19 @@ $| = 1;
 
 my $MODEM = 'http://192.168.8.1';
 my $JOB_DIR = '/tmp/hilink-sms-jobs';
+my $LOG_FILE = '/var/log/hilink-sms.log';
 my $q = CGI->new;
 my $action = $q->param('action') || '';
+
+sub log_msg {
+    my ($level, $msg) = @_;
+    my $ts = strftime('%Y-%m-%d %H:%M:%S', localtime());
+    my $from = $ENV{REMOTE_ADDR} || 'unknown';
+    my $pid = $$;
+    open my $fh, '>>', $LOG_FILE;
+    print {$fh} "$ts [$level] [$from] [pid=$pid] $msg\n" if $fh;
+    close $fh;
+}
 
 my %GET_API = (
     monitoringStatus => 'api/monitoring/status',
@@ -312,6 +323,7 @@ sub hi_raw_post {
 
 sub send_sms {
     my ($phone, $msg, %opts) = @_;
+    log_msg('DEBUG', "send_sms: phone=$phone msg_len=" . length($msg));
     my $reserved = defined $opts{reserved} ? $opts{reserved} : $q->param('reserved');
     $reserved = 0 unless defined $reserved && $reserved =~ /^-?\d+$/;
     my $sca = defined $opts{sca} ? $opts{sca} : $q->param('sca');
@@ -325,7 +337,11 @@ sub send_sms {
         . "</Date></request>";
 
     my $content = hi_post_xml('api/sms/send-sms', $body, "$MODEM/html/smsinbox.html");
-    return (1, '') if $content =~ /<response>OK<\/response>/;
+    if ($content =~ /<response>OK<\/response>/) {
+        log_msg('INFO', "send_sms: phone=$phone OK");
+        return (1, '');
+    }
+    log_msg('ERROR', "send_sms: phone=$phone FAIL: $content");
     return (0, $content);
 }
 
@@ -474,12 +490,15 @@ sub probe_sms_list {
 
 print $q->header(-type => 'text/plain', -charset => 'utf-8');
 
+log_msg('INFO', "action=$action" . ($q->param('phone') ? " phone=" . normalize_phone($q->param('phone') // '') : '') . " msg_len=" . (length($q->param('msg') // '')));
+
 if ($action eq 'send') {
     my $phone = $q->param('phone') || '';
     my $msg   = $q->param('msg')   || '';
     $phone = normalize_phone($phone);
     $msg =~ s/\+/ /g;
     my ($ok, $err) = send_sms($phone, $msg);
+    log_msg($ok ? 'INFO' : 'ERROR', "send: phone=$phone result=" . ($ok ? 'OK' : "FAIL: $err"));
     print $ok ? "OK" : "ERROR: $err";
 } elsif ($action eq 'send-async') {
     my $phone = normalize_phone($q->param('phone') || '');
@@ -520,5 +539,6 @@ if ($action eq 'send') {
 } elsif ($action eq 'sms-config-xml') {
     print api_get('config/sms/config.xml');
 } else {
+    log_msg('WARN', "unknown_action: $action");
     print "OK";
 }
