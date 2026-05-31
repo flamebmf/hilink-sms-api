@@ -6,448 +6,380 @@
 <title>Hilink SMS Gateway</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-body { background: #f5f5f5; font-size: .88rem; }
-.card { margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,.1); }
-.card-header { font-weight: 600; padding: .5rem 1rem; }
-.card-body { padding: .75rem 1rem; }
-.info-grid { display: grid; grid-template-columns: auto 1fr; gap: .2rem 1rem; }
-.info-label { color: #888; white-space: nowrap; }
-.refresh-btn { cursor: pointer; }
-.signal-bars { display: flex; align-items: end; gap: 3px; height: 28px; margin: 0 8px; }
-.signal-bar { width: 6px; min-height: 4px; background: #aaa; border-radius: 1px; }
-.signal-bar.active { background: #198754; }
-#toast-container { position: fixed; top: 1rem; right: 1rem; z-index: 9999; }
-.toast-msg { background: #333; color: #fff; padding: .5rem 1rem; border-radius: 6px; margin-bottom: .5rem; font-size: .85rem; }
-.xml-view { font-size: .75rem; max-height: 300px; overflow: auto; background: #f8f9fa; padding: .5rem; border-radius: 4px; white-space: pre-wrap; word-break: break-all; }
-.nav-pills .nav-link { padding: .3rem 1rem; font-size: .85rem; }
-.tab-content { min-height: 400px; }
-.badge-signal { font-size: .75rem; }
-.skeleton { display: inline-block; width: 80px; height: 14px; background: #e0e0e0; border-radius: 4px; animation: pulse 1.5s infinite; }
-@keyframes pulse { 0%,100% { opacity: .4; } 50% { opacity: 1; } }
+:root { --bg: #04070d; --accent: #00d4ff; --accent2: #7b61ff; --text: #e4e8ee; --muted: #7a8294; --card-bg: rgba(10,15,22,.9); }
+* { box-sizing: border-box; }
+body { font-family: 'Roboto', sans-serif; background: var(--bg); color: var(--text); font-size: .85rem; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+.text-grad { background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.bg-bars { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.bg-bar { position: absolute; border-radius: 999px; will-change: transform, opacity; opacity: 1; transition: opacity 3s ease; background: linear-gradient(180deg, transparent 0%, transparent 10%, rgba(0,212,255,.06) 25%, rgba(0,212,255,.25) 50%, rgba(0,212,255,.06) 75%, transparent 90%, transparent 100%); box-shadow: 0 0 12px rgba(0,212,255,.12); }
+.bg-bar.dim { opacity: 0.1; }
+.bg-bar.purple { background: linear-gradient(180deg, transparent 0%, transparent 10%, rgba(123,97,255,.05) 25%, rgba(123,97,255,.2) 50%, rgba(123,97,255,.05) 75%, transparent 90%, transparent 100%); box-shadow: 0 0 10px rgba(123,97,255,.1); }
+.main-wrap { position: relative; z-index: 1; padding: 16px 0; }
+.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
+.header-title { font-size: 1.4rem; font-weight: 900; letter-spacing: -.5px; }
+.header-info { display: flex; align-items: center; gap: 10px; }
+.btn-refresh { width: 36px; height: 36px; border-radius: 10px; border: 1px solid rgba(255,255,255,.08); background: rgba(255,255,255,.04); color: var(--muted); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all .3s; }
+.btn-refresh:hover { background: rgba(0,212,255,.1); color: var(--accent); border-color: rgba(0,212,255,.3); }
+.nav-tabs-custom { display: flex; gap: 4px; margin-bottom: 16px; flex-wrap: wrap; }
+.nav-tab-btn { padding: 8px 18px; font-size: .78rem; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; border-radius: 8px; border: 1px solid transparent; background: transparent; color: var(--muted); cursor: pointer; transition: all .3s; }
+.nav-tab-btn:hover { color: var(--text); background: rgba(255,255,255,.04); }
+.nav-tab-btn.active { background: rgba(0,212,255,.1); color: var(--accent); border-color: rgba(0,212,255,.25); box-shadow: 0 0 20px rgba(0,212,255,.08); }
+.card-dash { background: var(--card-bg); border: 1px solid rgba(255,255,255,.06); border-radius: 14px; margin-bottom: 14px; overflow: hidden; backdrop-filter: blur(10px); transition: all .3s; }
+.card-dash:hover { border-color: rgba(0,212,255,.15); }
+.card-dash-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 18px; border-bottom: 1px solid rgba(255,255,255,.04); font-weight: 700; font-size: .82rem; letter-spacing: .3px; }
+.card-dash-header .refresh-icon { color: var(--muted); cursor: pointer; font-size: .8rem; transition: color .3s; }
+.card-dash-header .refresh-icon:hover { color: var(--accent); }
+.card-dash-body { padding: 14px 18px; }
+.info-grid { display: grid; grid-template-columns: auto 1fr; gap: .25rem 1.2rem; align-items: baseline; }
+.info-label { color: var(--muted); font-size: .8rem; white-space: nowrap; }
+.info-value { font-weight: 500; color: var(--text); word-break: break-all; }
+.signal-vis { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.signal-bars { display: flex; align-items: end; gap: 3px; height: 26px; }
+.signal-bar { width: 5px; min-height: 3px; background: rgba(255,255,255,.12); border-radius: 1px; transition: background .3s; }
+.signal-bar.active { background: var(--accent); }
+.signal-badge { font-size: .7rem; font-weight: 700; padding: 3px 10px; border-radius: 6px; letter-spacing: .5px; text-transform: uppercase; }
+.signal-badge.good { background: rgba(0,212,255,.12); color: var(--accent); }
+.signal-badge.warn { background: rgba(255,183,0,.12); color: #ffb700; }
+.signal-badge.bad { background: rgba(255,77,77,.12); color: #ff4d4d; }
+.table-custom { width: 100%; border-collapse: collapse; font-size: .8rem; }
+.table-custom th { text-align: left; padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,.06); color: var(--muted); font-weight: 700; font-size: .7rem; text-transform: uppercase; letter-spacing: .5px; }
+.table-custom td { padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,.03); color: var(--text); }
+.table-custom tr:hover td { background: rgba(255,255,255,.02); }
+.xml-view { font-size: .72rem; max-height: 260px; overflow: auto; background: rgba(0,0,0,.3); padding: 10px 14px; border-radius: 8px; white-space: pre-wrap; word-break: break-all; color: var(--muted); font-family: 'Courier New', monospace; }
+.skeleton { display: inline-block; width: 70px; height: 12px; background: rgba(255,255,255,.06); border-radius: 4px; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%,100% { opacity: .3; } 50% { opacity: .7; } }
+.toast-wrap { position: fixed; top: 16px; right: 16px; z-index: 9999; display: flex; flex-direction: column; gap: 6px; }
+.toast-item { background: rgba(10,15,22,.95); border: 1px solid rgba(0,212,255,.2); color: var(--text); padding: 8px 16px; border-radius: 8px; font-size: .8rem; backdrop-filter: blur(12px); box-shadow: 0 8px 30px rgba(0,0,0,.5); }
+@media (max-width: 768px) { .header-title { font-size: 1.1rem; } .nav-tab-btn { font-size: .7rem; padding: 6px 12px; } }
 </style>
 </head>
 <body>
 
-<div class="container py-3">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h5 class="mb-0"><i class="bi bi-hdd-rack"></i> Hilink SMS Gateway</h5>
-    <div>
-      <span id="lastUpdate" class="text-muted small me-2"></span>
-      <button class="btn btn-sm btn-outline-secondary" onclick="refreshAll()" title="Refresh"><i class="bi bi-arrow-clockwise"></i></button>
+<div class="bg-bars" id="bgBars"></div>
+
+<div class="main-wrap">
+<div class="container-xl">
+
+  <div class="header">
+    <div class="header-title"><i class="bi bi-hdd-rack me-2 text-grad"></i>Hilink <span class="text-grad">SMS Gateway</span></div>
+    <div class="header-info">
+      <span id="lastUpdate" style="color:var(--muted);font-size:.78rem;"></span>
+      <button class="btn-refresh" onclick="refreshAll()" title="Refresh"><i class="bi bi-arrow-clockwise"></i></button>
     </div>
   </div>
 
-  <ul class="nav nav-pills mb-3" id="mainTabs" role="tablist">
-    <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tab-device">Device</button></li>
-    <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-signal">Signal</button></li>
-    <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-network">Network</button></li>
-    <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-sms">SMS</button></li>
-    <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-config">Config</button></li>
-    <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-inbox">Inbox</button></li>
-  </ul>
+  <div class="nav-tabs-custom" id="mainTabs">
+    <button class="nav-tab-btn active" data-tab="device">Device</button>
+    <button class="nav-tab-btn" data-tab="signal">Signal</button>
+    <button class="nav-tab-btn" data-tab="network">Network</button>
+    <button class="nav-tab-btn" data-tab="sms">SMS</button>
+    <button class="nav-tab-btn" data-tab="config">Config</button>
+    <button class="nav-tab-btn" data-tab="inbox">Inbox</button>
+  </div>
 
-  <div class="tab-content">
-    <!-- Device Info -->
-    <div class="tab-pane fade show active" id="tab-device">
-      <div class="card">
-        <div class="card-header d-flex justify-content-between"><span>Device Information</span><a class="refresh-btn small" onclick="loadDeviceInfo()"><i class="bi bi-arrow-clockwise"></i></a></div>
-        <div class="card-body" id="deviceInfoBody"><div class="skeleton"></div></div>
-      </div>
-      <div class="row">
-        <div class="col-md-6">
-          <div class="card">
-            <div class="card-header">Connection</div>
-            <div class="card-body" id="connectionBody"><div class="skeleton"></div></div>
-          </div>
+  <!-- Device -->
+  <div class="tab-panel" id="panel-device">
+    <div class="card-dash">
+      <div class="card-dash-header"><span>Device Information</span><span class="refresh-icon bi bi-arrow-clockwise" onclick="loadDeviceInfo()"></span></div>
+      <div class="card-dash-body" id="deviceInfoBody"><span class="skeleton"></span></div>
+    </div>
+    <div class="row g-3">
+      <div class="col-md-6">
+        <div class="card-dash">
+          <div class="card-dash-header">Connection</div>
+          <div class="card-dash-body" id="connectionBody"><span class="skeleton"></span></div>
         </div>
-        <div class="col-md-6">
-          <div class="card">
-            <div class="card-header">Uptime</div>
-            <div class="card-body" id="uptimeBody"><div class="skeleton"></div></div>
-          </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card-dash">
+          <div class="card-dash-header">Uptime</div>
+          <div class="card-dash-body" id="uptimeBody"><span class="skeleton"></span></div>
         </div>
       </div>
     </div>
-
-    <!-- Signal -->
-    <div class="tab-pane fade" id="tab-signal">
-      <div class="card">
-        <div class="card-header d-flex justify-content-between"><span>Signal Status</span><a class="refresh-btn small" onclick="loadSignal()"><i class="bi bi-arrow-clockwise"></i></a></div>
-        <div class="card-body" id="signalBody"><div class="skeleton"></div></div>
-      </div>
-    </div>
-
-    <!-- Network -->
-    <div class="tab-pane fade" id="tab-network">
-      <div class="card">
-        <div class="card-header d-flex justify-content-between"><span>Network</span><a class="refresh-btn small" onclick="loadNetwork()"><i class="bi bi-arrow-clockwise"></i></a></div>
-        <div class="card-body" id="networkBody"><div class="skeleton"></div></div>
-      </div>
-      <div class="card">
-        <div class="card-header">Traffic Statistics</div>
-        <div class="card-body" id="trafficBody"><div class="skeleton"></div></div>
-      </div>
-    </div>
-
-    <!-- SMS -->
-    <div class="tab-pane fade" id="tab-sms">
-      <div class="card">
-        <div class="card-header d-flex justify-content-between"><span>SMS Counters</span><a class="refresh-btn small" onclick="loadSmsCount()"><i class="bi bi-arrow-clockwise"></i></a></div>
-        <div class="card-body" id="smsCountBody"><div class="skeleton"></div></div>
-      </div>
-      <div class="card">
-        <div class="card-header d-flex justify-content-between"><span>Send Status</span><a class="refresh-btn small" onclick="loadSendStatus()"><i class="bi bi-arrow-clockwise"></i></a></div>
-        <div class="card-body" id="sendStatusBody"><div class="skeleton"></div></div>
-      </div>
-    </div>
-
-    <!-- Config -->
-    <div class="tab-pane fade" id="tab-config">
-      <div class="card">
-        <div class="card-header d-flex justify-content-between"><span>SMS Configuration</span><a class="refresh-btn small" onclick="loadSmsConfig()"><i class="bi bi-arrow-clockwise"></i></a></div>
-        <div class="card-body" id="smsConfigBody"><div class="skeleton"></div></div>
-      </div>
-      <div class="card">
-        <div class="card-header d-flex justify-content-between"><span>Raw Config XML</span><a class="refresh-btn small" onclick="loadSmsConfigXml()"><i class="bi bi-arrow-clockwise"></i></a></div>
-        <div class="card-body" id="smsConfigXmlBody"><div class="skeleton"></div></div>
-      </div>
-    </div>
-
-    <!-- Inbox -->
-    <div class="tab-pane fade" id="tab-inbox">
-      <div class="card">
-        <div class="card-header d-flex justify-content-between"><span>SMS Inbox</span><a class="refresh-btn small" onclick="loadInbox()"><i class="bi bi-arrow-clockwise"></i></a></div>
-        <div class="card-body" id="inboxBody"><div class="skeleton"></div></div>
-      </div>
+    <div class="card-dash">
+      <div class="card-dash-header">Traffic Statistics</div>
+      <div class="card-dash-body" id="trafficBody"><span class="skeleton"></span></div>
     </div>
   </div>
+
+  <!-- Signal -->
+  <div class="tab-panel d-none" id="panel-signal">
+    <div class="card-dash">
+      <div class="card-dash-header"><span>Signal Status</span><span class="refresh-icon bi bi-arrow-clockwise" onclick="loadSignal()"></span></div>
+      <div class="card-dash-body" id="signalBody"><span class="skeleton"></span></div>
+    </div>
+  </div>
+
+  <!-- Network -->
+  <div class="tab-panel d-none" id="panel-network">
+    <div class="card-dash">
+      <div class="card-dash-header"><span>Network</span><span class="refresh-icon bi bi-arrow-clockwise" onclick="loadNetwork()"></span></div>
+      <div class="card-dash-body" id="networkBody"><span class="skeleton"></span></div>
+    </div>
+  </div>
+
+  <!-- SMS -->
+  <div class="tab-panel d-none" id="panel-sms">
+    <div class="card-dash">
+      <div class="card-dash-header"><span>SMS Counters</span><span class="refresh-icon bi bi-arrow-clockwise" onclick="loadSmsCount()"></span></div>
+      <div class="card-dash-body" id="smsCountBody"><span class="skeleton"></span></div>
+    </div>
+    <div class="card-dash">
+      <div class="card-dash-header"><span>Send Status</span><span class="refresh-icon bi bi-arrow-clockwise" onclick="loadSendStatus()"></span></div>
+      <div class="card-dash-body" id="sendStatusBody"><span class="skeleton"></span></div>
+    </div>
+  </div>
+
+  <!-- Config -->
+  <div class="tab-panel d-none" id="panel-config">
+    <div class="card-dash">
+      <div class="card-dash-header"><span>SMS Configuration</span><span class="refresh-icon bi bi-arrow-clockwise" onclick="loadSmsConfig()"></span></div>
+      <div class="card-dash-body" id="smsConfigBody"><span class="skeleton"></span></div>
+    </div>
+    <div class="card-dash">
+      <div class="card-dash-header"><span>Raw Config XML</span><span class="refresh-icon bi bi-arrow-clockwise" onclick="loadSmsConfigXml()"></span></div>
+      <div class="card-dash-body" id="smsConfigXmlBody"><span class="skeleton"></span></div>
+    </div>
+  </div>
+
+  <!-- Inbox -->
+  <div class="tab-panel d-none" id="panel-inbox">
+    <div class="card-dash">
+      <div class="card-dash-header"><span>SMS Inbox</span><span class="refresh-icon bi bi-arrow-clockwise" onclick="loadInbox()"></span></div>
+      <div class="card-dash-body" id="inboxBody"><span class="skeleton"></span></div>
+    </div>
+  </div>
+
+</div>
 </div>
 
-<div id="toast-container"></div>
+<div class="toast-wrap" id="toastWrap"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 const API = '/cgi-bin/sms-gw.pl';
 
-function toast(msg, type) {
-  var el = document.createElement('div');
-  el.className = 'toast-msg';
-  el.textContent = msg;
-  document.getElementById('toast-container').appendChild(el);
-  setTimeout(function(){ el.remove(); }, 3000);
-}
-
-function xmlVal(xml, tag) {
-  var m = xml.match(new RegExp('<' + tag + '>(.*?)<\\/' + tag + '>'));
-  return m ? m[1].trim() : '';
-}
-
-function xmlVals(xml, tag) {
-  var re = new RegExp('<' + tag + '>(.*?)<\\/' + tag + '>', 'g');
-  var r = [], m;
-  while ((m = re.exec(xml)) !== null) r.push(m[1].trim());
-  return r;
-}
-
-function fmtBytes(b) {
-  if (!b) return '0 B';
-  var u = ['B','KB','MB','GB'], i = 0;
-  b = parseInt(b) || 0;
-  while (b >= 1024 && i < u.length-1) { b /= 1024; i++; }
-  return b.toFixed(1) + ' ' + u[i];
-}
-
-function fmtSecs(s) {
-  s = parseInt(s) || 0;
-  var d = Math.floor(s/86400), h = Math.floor((s%86400)/3600), m = Math.floor((s%3600)/60);
-  return (d ? d + 'd ' : '') + h + 'h ' + m + 'm';
-}
-
-function fmtDate(d) {
-  if (!d) return '';
-  var parts = d.match(/^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})$/);
-  if (!parts) return d;
-  var date = new Date(parts[1], parts[2]-1, parts[3], parts[4], parts[5], parts[6]);
-  return date.toLocaleString('ru-RU');
-}
-
-function signalQuality(rsrp) {
-  if (!rsrp) return {text: 'N/A', cls: 'secondary'};
-  var v = parseFloat(rsrp);
-  if (v >= -85) return {text: 'Excellent', cls: 'success'};
-  if (v >= -95) return {text: 'Good', cls: 'success'};
-  if (v >= -105) return {text: 'Fair', cls: 'warning'};
-  return {text: 'Poor', cls: 'danger'};
-}
-
-function signalBars(rsrp) {
-  if (!rsrp) return 0;
-  var v = parseFloat(rsrp);
-  if (v >= -80) return 5;
-  if (v >= -90) return 4;
-  if (v >= -100) return 3;
-  if (v >= -110) return 2;
-  return 1;
-}
-
-function renderSignalBars(count, max) {
-  var html = '<div class="signal-bars">';
-  for (var i = 1; i <= (max || 5); i++) {
-    html += '<div class="signal-bar' + (i <= count ? ' active' : '') + '" style="height:' + (4 + i * 4) + 'px"></div>';
+// --- Background bars ---
+(function(){
+  var c = document.getElementById('bgBars'); if(!c)return;
+  var NUM=30, winH, winW;
+  function recalc(){ winH=window.innerHeight; winW=window.innerWidth; }
+  recalc();
+  var bars=[];
+  for(var i=0;i<NUM;i++){
+    var el=document.createElement('div'); el.className='bg-bar';
+    if(i%4===0)el.classList.add('purple');
+    var w=10+Math.random()*60;
+    el.style.width=w+'px'; el.style.height=(winH*6)+'px';
+    el.style.top='-'+(winH*2.5)+'px';
+    el.style.left=((i/NUM)*100+(Math.random()-0.5)*5)+'%';
+    if(Math.random()>.55)el.classList.add('dim');
+    c.appendChild(el);
+    bars.push({el:el,spdY:.15+Math.random()*1.8,spdX:.3+Math.random()*.8,baseY:(Math.random()-.5)*winH*1.5,basePct:(i/NUM)*100,nextFade:6+Math.random()*15,dimmed:Math.random()>.55});
   }
-  return html + '</div>';
-}
-
-function renderInfoGrid(data) {
-  var html = '<div class="info-grid">';
-  for (var k in data) {
-    html += '<span class="info-label">' + k + '</span><span class="fw-medium">' + (data[k] || '-') + '</span>';
+  var start=Date.now();
+  function drift(){
+    var now=Date.now(),elapsed=(now-start)/1000,scrollY=window.pageYOffset;
+    bars.forEach(function(d){
+      var y=d.baseY-scrollY*d.spdY*.5;
+      while(y<-winH*2.5)y+=winH*6; while(y>winH*3.5)y-=winH*6;
+      var driftPx=(elapsed*d.spdX*winW)/180;
+      driftPx=driftPx%(winW+100); var barL=(d.basePct/100)*winW;
+      var mappedX=((barL-driftPx)%(winW+100));
+      if(mappedX<-60)mappedX+=winW+100;
+      d.el.style.transform='translateY('+y+'px) translateX('+(mappedX-barL)+'px)';
+      d.nextFade-=.016;
+      if(!d.dimmed&&d.nextFade<=0){d.dimmed=true;d.dimStart=now;d.el.classList.add('dim');}
+      if(d.dimmed&&(now-d.dimStart)>2500){d.dimmed=false;d.el.classList.remove('dim');d.nextFade=6+Math.random()*15;}
+    });
+    requestAnimationFrame(drift);
   }
-  return html + '</div>';
-}
+  window.addEventListener('resize',recalc);
+  drift();
+})();
 
-function fetchApi(action, extra) {
-  var url = API + '?action=' + encodeURIComponent(action);
-  if (extra) url += '&' + extra;
-  return fetch(url).then(function(r) { return r.text(); });
-}
-
-function updateTime() {
-  document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('ru-RU');
-}
-
-// Device Info
-function loadDeviceInfo() {
-  var body = document.getElementById('deviceInfoBody');
-  body.innerHTML = '<div class="skeleton"></div>';
-  fetchApi('info').then(function(xml) {
-    if (xml.includes('<code>')) { body.innerHTML = '<span class="text-danger">Error: ' + xmlVal(xml, 'code') + '</span>'; return; }
-    body.innerHTML = renderInfoGrid({
-      'Device': xmlVal(xml, 'DeviceName'),
-      'IMEI': xmlVal(xml, 'Imei'),
-      'IMSI': xmlVal(xml, 'Imsi'),
-      'ICCID': xmlVal(xml, 'Iccid'),
-      'Hardware': xmlVal(xml, 'HardwareVersion'),
-      'Software': xmlVal(xml, 'SoftwareVersion').replace(/&#40;/g,'(').replace(/&#41;/g,')'),
-      'WebUI': xmlVal(xml, 'WebUIVersion').replace(/&#40;/g,'(').replace(/&#41;/g,')'),
-      'MAC': xmlVal(xml, 'MacAddress1'),
-      'Serial': xmlVal(xml, 'SerialNumber'),
-      'Work Mode': xmlVal(xml, 'workmode'),
-      'Support': xmlVal(xml, 'supportmode'),
-    });
-    updateTime();
-  }).catch(function(e) { body.innerHTML = '<span class="text-danger">Request failed: ' + e.message + '</span>'; });
-
-  fetchApi('get', 'name=trafficStatistics').then(function(xml) {
-    var tb = document.getElementById('trafficBody');
-    if (tb) {
-      tb.innerHTML = renderInfoGrid({
-        'Current Connect': fmtBytes(xmlVal(xml, 'CurrentConnectTime')),
-        'Current Upload': fmtBytes(xmlVal(xml, 'CurrentUpload')),
-        'Current Download': fmtBytes(xmlVal(xml, 'CurrentDownload')),
-        'Current Duration': fmtSecs(xmlVal(xml, 'CurrentConnectTime')),
-        'Total Upload': fmtBytes(xmlVal(xml, 'TotalUpload')),
-        'Total Download': fmtBytes(xmlVal(xml, 'TotalDownload')),
-      });
-    }
-  }).catch(function(){});
-
-  fetchApi('get', 'name=netCurrentPlmn').then(function(xml) {
-    var nb = document.getElementById('connectionBody');
-    if (nb) {
-      nb.innerHTML = renderInfoGrid({
-        'Operator': xmlVal(xml, 'FullName'),
-        'Numeric': xmlVal(xml, 'Numeric'),
-        'RAT': xmlVal(xml, 'Rat') === '7' ? 'LTE' : xmlVal(xml, 'Rat'),
-      });
-    }
-  }).catch(function(){});
-
-  var uptime = xmlVal(xml, 'uptime');
-  var el = document.getElementById('uptimeBody');
-  if (el) el.innerHTML = '<div class="fs-4 fw-bold">' + fmtSecs(uptime || 0) + '</div>';
-}
-
-// Signal
-function loadSignal() {
-  var body = document.getElementById('signalBody');
-  body.innerHTML = '<div class="skeleton"></div>';
-  fetchApi('signal').then(function(xml) {
-    if (xml.includes('<code>')) { body.innerHTML = '<span class="text-danger">Error: ' + xmlVal(xml, 'code') + '</span>'; return; }
-    var rsrp = xmlVal(xml, 'rsrp');
-    var bars = signalBars(rsrp);
-    var qual = signalQuality(rsrp);
-    body.innerHTML = '<div class="row">' +
-      '<div class="col-md-6">' +
-        renderInfoGrid({
-          'RSRP': rsrp || '-',
-          'RSRQ': xmlVal(xml, 'rsrq') || '-',
-          'RSSI': xmlVal(xml, 'rssi') || '-',
-          'SINR': xmlVal(xml, 'sinr') || '-',
-        }) +
-      '</div>' +
-      '<div class="col-md-6">' +
-        '<div class="d-flex align-items-center mb-2">' +
-          renderSignalBars(bars) +
-          '<span class="ms-2 badge bg-' + qual.cls + ' badge-signal">' + qual.text + '</span>' +
-        '</div>' +
-        renderInfoGrid({
-          'Band': xmlVal(xml, 'band') || '-',
-          'EARFCN DL': xmlVal(xml, 'earfcn') ? xmlVal(xml, 'earfcn').replace('DL:','').split(' ')[0] : '-',
-          'EARFCN UL': xmlVal(xml, 'earfcn') ? xmlVal(xml, 'earfcn').split(' ')[1].replace('UL:','') : '-',
-          'Cell ID': xmlVal(xml, 'cell_id') || '-',
-          'PCI': xmlVal(xml, 'pci') || '-',
-          'eNodeB': xmlVal(xml, 'enodeb_id') || '-',
-          'Bandwidth': xmlVal(xml, 'dlbandwidth') || '-',
-          'Tx Power': xmlVal(xml, 'txpower') ? xmlVal(xml, 'txpower').substring(0, 30) : '-',
-        }) +
-      '</div>' +
-    '</div>';
-    updateTime();
-  }).catch(function(e) { body.innerHTML = '<span class="text-danger">Request failed: ' + e.message + '</span>'; });
-}
-
-// Network
-function loadNetwork() {
-  var body = document.getElementById('networkBody');
-  body.innerHTML = '<div class="skeleton"></div>';
-  fetchApi('get', 'name=netCurrentPlmn').then(function(xml) {
-    body.innerHTML = renderInfoGrid({
-      'Operator': xmlVal(xml, 'FullName'),
-      'Short Name': xmlVal(xml, 'ShortName'),
-      'Numeric': xmlVal(xml, 'Numeric'),
-      'RAT': xmlVal(xml, 'Rat') === '7' ? 'LTE' : xmlVal(xml, 'Rat'),
-      'State': xmlVal(xml, 'State'),
-    });
-    updateTime();
-  }).catch(function(e) { body.innerHTML = '<span class="text-danger">Request failed: ' + e.message + '</span>'; });
-}
-
-// SMS Count
-function loadSmsCount() {
-  var body = document.getElementById('smsCountBody');
-  body.innerHTML = '<div class="skeleton"></div>';
-  fetchApi('sms-count').then(function(xml) {
-    body.innerHTML = renderInfoGrid({
-      'Local Inbox': xmlVal(xml, 'LocalInbox'),
-      'Local Unread': xmlVal(xml, 'LocalUnread'),
-      'Local Outbox': xmlVal(xml, 'LocalOutbox'),
-      'Local Draft': xmlVal(xml, 'LocalDraft'),
-      'Local Max': xmlVal(xml, 'LocalMax'),
-      'Unread': xmlVal(xml, 'NewMsg'),
-    });
-    updateTime();
-  }).catch(function(e) { body.innerHTML = '<span class="text-danger">Request failed: ' + e.message + '</span>'; });
-}
-
-// Send Status
-function loadSendStatus() {
-  var body = document.getElementById('sendStatusBody');
-  body.innerHTML = '<div class="skeleton"></div>';
-  fetchApi('send-status').then(function(xml) {
-    body.innerHTML = renderInfoGrid({
-      'Successful Phone': xmlVal(xml, 'SucPhone') || '-',
-      'Failed Phone': xmlVal(xml, 'FailPhone') || '-',
-      'Phone': xmlVal(xml, 'Phone') || '-',
-      'Total Count': xmlVal(xml, 'TotalCount'),
-      'Current Index': xmlVal(xml, 'CurIndex'),
-    });
-    updateTime();
-  }).catch(function(e) { body.innerHTML = '<span class="text-danger">Request failed: ' + e.message + '</span>'; });
-}
-
-// SMS Config
-function loadSmsConfig() {
-  var body = document.getElementById('smsConfigBody');
-  body.innerHTML = '<div class="skeleton"></div>';
-  fetchApi('sms-config').then(function(xml) {
-    body.innerHTML = renderInfoGrid({
-      'SMS Center': xmlVal(xml, 'Sca'),
-      'Validity': xmlVal(xml, 'Validity') + ' min',
-      'Save Mode': xmlVal(xml, 'SaveMode'),
-      'Send Type': xmlVal(xml, 'SendType'),
-      'Delivery Report': xmlVal(xml, 'UseSReport') === '1' ? 'On' : 'Off',
-      'Page Size': xmlVal(xml, 'pagesize'),
-      'Forward': xmlVal(xml, 'sms_forward_enable') === '1' ? 'On' : 'Off',
-    });
-    updateTime();
-  }).catch(function(e) { body.innerHTML = '<span class="text-danger">Request failed: ' + e.message + '</span>'; });
-}
-
-// SMS Config XML
-function loadSmsConfigXml() {
-  var body = document.getElementById('smsConfigXmlBody');
-  body.innerHTML = '<div class="skeleton"></div>';
-  fetchApi('sms-config-xml').then(function(xml) {
-    body.innerHTML = '<div class="xml-view">' + escHtml(xml) + '</div>';
-    updateTime();
-  }).catch(function(e) { body.innerHTML = '<span class="text-danger">Request failed: ' + e.message + '</span>'; });
-}
-
-// Inbox
-function loadInbox() {
-  var body = document.getElementById('inboxBody');
-  body.innerHTML = '<div class="skeleton"></div>';
-  fetchApi('list').then(function(xml) {
-    var messages = xml.match(/<Message>([\s\S]*?)<\/Message>/g);
-    if (!messages || messages.length === 0) {
-      body.innerHTML = '<p class="text-muted">No messages</p>';
-      return;
-    }
-    var html = '<div class="table-responsive"><table class="table table-sm table-hover"><thead><tr><th>#</th><th>From</th><th>Message</th><th>Date</th></tr></thead><tbody>';
-    for (var i = 0; i < messages.length; i++) {
-      var m = messages[i];
-      var idx = xmlVal(m, 'Index');
-      var phone = xmlVal(m, 'Phone');
-      var content = xmlVal(m, 'Content');
-      var date = xmlVal(m, 'Date');
-      var smsc = xmlVal(m, 'Sca');
-      html += '<tr><td>' + idx + '</td><td>' + escHtml(phone) + '</td><td>' + escHtml(content) + '</td><td class="text-nowrap small">' + fmtDate(date) + '</td></tr>';
-    }
-    html += '</tbody></table></div>';
-    body.innerHTML = html;
-    updateTime();
-  }).catch(function(e) { body.innerHTML = '<span class="text-danger">Request failed: ' + e.message + '</span>'; });
-}
-
-function escHtml(s) {
-  var d = document.createElement('div');
-  d.textContent = s;
-  return d.innerHTML;
-}
-
-// Refresh all visible
-function refreshAll() {
-  var active = document.querySelector('#mainTabs .nav-link.active');
-  if (!active) return;
-  var tabId = active.getAttribute('data-bs-target');
-  if (tabId === '#tab-device') loadDeviceInfo();
-  else if (tabId === '#tab-signal') loadSignal();
-  else if (tabId === '#tab-network') loadNetwork();
-  else if (tabId === '#tab-sms') { loadSmsCount(); loadSendStatus(); }
-  else if (tabId === '#tab-config') { loadSmsConfig(); loadSmsConfigXml(); }
-  else if (tabId === '#tab-inbox') loadInbox();
-  toast('Refreshed', 'info');
-}
-
-// Load current tab on switch
-document.querySelectorAll('#mainTabs .nav-link').forEach(function(tab) {
-  tab.addEventListener('shown.bs.tab', function(e) {
-    var id = e.target.getAttribute('data-bs-target');
-    if (id === '#tab-device') loadDeviceInfo();
-    else if (id === '#tab-signal') loadSignal();
-    else if (id === '#tab-network') loadNetwork();
-    else if (id === '#tab-sms') { loadSmsCount(); loadSendStatus(); }
-    else if (id === '#tab-config') { loadSmsConfig(); loadSmsConfigXml(); }
-    else if (id === '#tab-inbox') loadInbox();
+// --- Tab switching ---
+document.querySelectorAll('.nav-tab-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('.nav-tab-btn').forEach(function(b){b.classList.remove('active');});
+    this.classList.add('active');
+    document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.add('d-none');});
+    var panel=document.getElementById('panel-'+this.dataset.tab);
+    if(panel){panel.classList.remove('d-none'); loadTab(this.dataset.tab);}
   });
 });
 
-// Auto-refresh every 30s
-setInterval(refreshAll, 30000);
+function loadTab(name){
+  switch(name){
+    case 'device': loadDeviceInfo(); break;
+    case 'signal': loadSignal(); break;
+    case 'network': loadNetwork(); break;
+    case 'sms': loadSmsCount(); loadSendStatus(); break;
+    case 'config': loadSmsConfig(); loadSmsConfigXml(); break;
+    case 'inbox': loadInbox(); break;
+  }
+}
 
-// Initial load
+function toast(msg){
+  var el=document.createElement('div'); el.className='toast-item'; el.textContent=msg;
+  document.getElementById('toastWrap').appendChild(el);
+  setTimeout(function(){el.remove()},2500);
+}
+
+function xmlVal(xml,tag){ var m=xml.match(new RegExp('<'+tag+'>(.*?)<\\/'+tag+'>')); return m?m[1].trim():''; }
+
+function fmtBytes(b){ if(!b)return'0 B'; var u=['B','KB','MB','GB'],i=0; b=parseInt(b)||0; while(b>=1024&&i<u.length-1){b/=1024;i++} return b.toFixed(1)+' '+u[i]; }
+function fmtSecs(s){ s=parseInt(s)||0; var d=Math.floor(s/86400),h=Math.floor((s%86400)/3600),m=Math.floor((s%3600)/60); return(d?d+'d ':'')+h+'h '+m+'m'; }
+function fmtDate(d){ if(!d)return''; var p=d.match(/^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})$/); if(!p)return d; var dt=new Date(p[1],p[2]-1,p[3],p[4],p[5],p[6]); return dt.toLocaleString('ru-RU'); }
+
+function signalInfo(rsrp){
+  if(!rsrp)return{bars:0,text:'N/A',cls:'warn'};
+  var v=parseFloat(rsrp);
+  if(v>=-80)return{bars:5,text:'Excellent',cls:'good'};
+  if(v>=-90)return{bars:4,text:'Good',cls:'good'};
+  if(v>=-100)return{bars:3,text:'Fair',cls:'warn'};
+  if(v>=-110)return{bars:2,text:'Poor',cls:'bad'};
+  return{bars:1,text:'Very Poor',cls:'bad'};
+}
+
+function renderBars(n){ var h='<div class="signal-bars">'; for(var i=1;i<=5;i++)h+='<div class="signal-bar'+(i<=n?' active':'')+'" style="height:'+(3+i*4)+'px"></div>'; return h+'</div>'; }
+
+function renderGrid(data){ var h='<div class="info-grid">'; for(var k in data)h+='<span class="info-label">'+k+'</span><span class="info-value">'+(data[k]||'-')+'</span>'; return h+'</div>'; }
+
+function fetchApi(action,extra){ var url=API+'?action='+encodeURIComponent(action); if(extra)url+='&'+extra; return fetch(url).then(function(r){return r.text();}); }
+
+function updateTime(){ document.getElementById('lastUpdate').textContent=new Date().toLocaleString('ru-RU'); }
+
+// --- Device ---
+function loadDeviceInfo(){
+  var b=document.getElementById('deviceInfoBody'); b.innerHTML='<span class="skeleton"></span>';
+  fetchApi('info').then(function(x){
+    if(x.includes('<code>')){b.innerHTML='<span style="color:#ff4d4d">Error: '+xmlVal(x,'code')+'</span>';return;}
+    b.innerHTML=renderGrid({
+      'Device':xmlVal(x,'DeviceName'),'IMEI':xmlVal(x,'Imei'),'IMSI':xmlVal(x,'Imsi'),
+      'ICCID':xmlVal(x,'Iccid'),'Hardware':xmlVal(x,'HardwareVersion'),
+      'Software':xmlVal(x,'SoftwareVersion').replace(/&#40;/g,'(').replace(/&#41;/g,')'),
+      'WebUI':xmlVal(x,'WebUIVersion').replace(/&#40;/g,'(').replace(/&#41;/g,')'),
+      'MAC':xmlVal(x,'MacAddress1'),'Serial':xmlVal(x,'SerialNumber'),
+      'Work Mode':xmlVal(x,'workmode'),'Support':xmlVal(x,'supportmode')
+    });
+    updateTime();
+    var u=xmlVal(x,'uptime');
+    document.getElementById('uptimeBody').innerHTML='<div style="font-size:1.4rem;font-weight:700;color:var(--accent)">'+fmtSecs(u||0)+'</div>';
+  }).catch(function(e){b.innerHTML='<span style="color:#ff4d4d">Request failed: '+e.message+'</span>';});
+
+  fetchApi('get','name=netCurrentPlmn').then(function(x){
+    document.getElementById('connectionBody').innerHTML=renderGrid({
+      'Operator':xmlVal(x,'FullName'),'Numeric':xmlVal(x,'Numeric'),
+      'RAT':xmlVal(x,'Rat')==='7'?'LTE':xmlVal(x,'Rat')
+    });
+  }).catch(function(){});
+
+  fetchApi('get','name=trafficStatistics').then(function(x){
+    document.getElementById('trafficBody').innerHTML=renderGrid({
+      'Current Upload':fmtBytes(xmlVal(x,'CurrentUpload')),'Current Download':fmtBytes(xmlVal(x,'CurrentDownload')),
+      'Current Duration':fmtSecs(xmlVal(x,'CurrentConnectTime')),'Total Upload':fmtBytes(xmlVal(x,'TotalUpload')),
+      'Total Download':fmtBytes(xmlVal(x,'TotalDownload'))
+    });
+  }).catch(function(){});
+}
+
+// --- Signal ---
+function loadSignal(){
+  var b=document.getElementById('signalBody'); b.innerHTML='<span class="skeleton"></span>';
+  fetchApi('signal').then(function(x){
+    if(x.includes('<code>')){b.innerHTML='<span style="color:#ff4d4d">Error: '+xmlVal(x,'code')+'</span>';return;}
+    var rsrp=xmlVal(x,'rsrp'),si=signalInfo(rsrp);
+    b.innerHTML='<div class="row g-3"><div class="col-md-6">'+
+      '<div class="signal-vis">'+renderBars(si.bars)+'<span class="signal-badge '+si.cls+'">'+si.text+'</span></div>'+
+      renderGrid({'RSRP':rsrp||'-','RSRQ':xmlVal(x,'rsrq')||'-','RSSI':xmlVal(x,'rssi')||'-','SINR':xmlVal(x,'sinr')||'-'})+
+      '</div><div class="col-md-6">'+
+      renderGrid({'Band':xmlVal(x,'band')||'-','Cell ID':xmlVal(x,'cell_id')||'-','PCI':xmlVal(x,'pci')||'-',
+        'eNodeB':xmlVal(x,'enodeb_id')||'-','Bandwidth DL':xmlVal(x,'dlbandwidth')||'-','EARFCN':xmlVal(x,'earfcn')||'-',
+        'Tx Power':xmlVal(x,'txpower')?xmlVal(x,'txpower').substring(0,28):'-'
+      })+'</div></div>';
+    updateTime();
+  }).catch(function(e){b.innerHTML='<span style="color:#ff4d4d">Request failed: '+e.message+'</span>';});
+}
+
+// --- Network ---
+function loadNetwork(){
+  var b=document.getElementById('networkBody'); b.innerHTML='<span class="skeleton"></span>';
+  fetchApi('get','name=netCurrentPlmn').then(function(x){
+    b.innerHTML=renderGrid({'Operator':xmlVal(x,'FullName'),'Short Name':xmlVal(x,'ShortName'),
+      'Numeric':xmlVal(x,'Numeric'),'RAT':xmlVal(x,'Rat')==='7'?'LTE':xmlVal(x,'Rat'),'State':xmlVal(x,'State')});
+    updateTime();
+  }).catch(function(e){b.innerHTML='<span style="color:#ff4d4d">Request failed: '+e.message+'</span>';});
+}
+
+// --- SMS Count ---
+function loadSmsCount(){
+  var b=document.getElementById('smsCountBody'); b.innerHTML='<span class="skeleton"></span>';
+  fetchApi('sms-count').then(function(x){
+    b.innerHTML=renderGrid({'Local Inbox':xmlVal(x,'LocalInbox'),'Unread':xmlVal(x,'LocalUnread'),
+      'Local Outbox':xmlVal(x,'LocalOutbox'),'Local Draft':xmlVal(x,'LocalDraft'),
+      'New':xmlVal(x,'NewMsg'),'Max':xmlVal(x,'LocalMax')});
+    updateTime();
+  }).catch(function(e){b.innerHTML='<span style="color:#ff4d4d">Request failed: '+e.message+'</span>';});
+}
+
+// --- Send Status ---
+function loadSendStatus(){
+  var b=document.getElementById('sendStatusBody'); b.innerHTML='<span class="skeleton"></span>';
+  fetchApi('send-status').then(function(x){
+    b.innerHTML=renderGrid({'Successful Phone':xmlVal(x,'SucPhone')||'-','Failed Phone':xmlVal(x,'FailPhone')||'-',
+      'Total Count':xmlVal(x,'TotalCount'),'Current Index':xmlVal(x,'CurIndex')});
+    updateTime();
+  }).catch(function(e){b.innerHTML='<span style="color:#ff4d4d">Request failed: '+e.message+'</span>';});
+}
+
+// --- SMS Config ---
+function loadSmsConfig(){
+  var b=document.getElementById('smsConfigBody'); b.innerHTML='<span class="skeleton"></span>';
+  fetchApi('sms-config').then(function(x){
+    b.innerHTML=renderGrid({'SMS Center':xmlVal(x,'Sca'),'Validity':xmlVal(x,'Validity')+' min',
+      'Save Mode':xmlVal(x,'SaveMode'),'Send Type':xmlVal(x,'SendType'),
+      'Delivery Report':xmlVal(x,'UseSReport')==='1'?'On':'Off','Page Size':xmlVal(x,'pagesize'),
+      'Forward':xmlVal(x,'sms_forward_enable')==='1'?'On':'Off'});
+    updateTime();
+  }).catch(function(e){b.innerHTML='<span style="color:#ff4d4d">Request failed: '+e.message+'</span>';});
+}
+
+// --- SMS Config XML ---
+function loadSmsConfigXml(){
+  var b=document.getElementById('smsConfigXmlBody'); b.innerHTML='<span class="skeleton"></span>';
+  fetchApi('sms-config-xml').then(function(x){b.innerHTML='<div class="xml-view">'+esc(x)+'</div>';updateTime();})
+  .catch(function(e){b.innerHTML='<span style="color:#ff4d4d">Request failed: '+e.message+'</span>';});
+}
+
+// --- Inbox ---
+function loadInbox(){
+  var b=document.getElementById('inboxBody'); b.innerHTML='<span class="skeleton"></span>';
+  fetchApi('list').then(function(x){
+    var msgs=x.match(/<Message>[\s\S]*?<\/Message>/g);
+    if(!msgs||!msgs.length){b.innerHTML='<p style="color:var(--muted)">No messages</p>';return;}
+    var h='<table class="table-custom"><thead><tr><th>#</th><th>From</th><th>Message</th><th>Date</th></tr></thead><tbody>';
+    for(var i=0;i<msgs.length;i++){
+      var m=msgs[i];
+      h+='<tr><td>'+xmlVal(m,'Index')+'</td><td>'+esc(xmlVal(m,'Phone'))+'</td><td>'+esc(xmlVal(m,'Content'))+'</td><td style="white-space:nowrap;font-size:.75rem">'+fmtDate(xmlVal(m,'Date'))+'</td></tr>';
+    }
+    h+='</tbody></table>'; b.innerHTML=h; updateTime();
+  }).catch(function(e){b.innerHTML='<span style="color:#ff4d4d">Request failed: '+e.message+'</span>';});
+}
+
+function esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+
+function refreshAll(){
+  var active=document.querySelector('.nav-tab-btn.active');
+  if(active)loadTab(active.dataset.tab);
+  toast('Refreshed');
+}
+
+document.querySelectorAll('.nav-tab-btn').forEach(function(t){t.addEventListener('shown',function(){});});
+setInterval(refreshAll,30000);
 loadDeviceInfo();
 </script>
 </body>
