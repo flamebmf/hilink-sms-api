@@ -1,0 +1,296 @@
+
+.home{
+    position: relative;
+    height: 100%;
+    font-size: 14px;
+}
+/* å·¦ä¾§èœå•åŒºåŸŸ */
+/* .leftmenuarea{
+    padding-top:20px;
+    height:736px;
+    width: 260px;
+    min-height: 500px;
+    float: left;
+    background-color: #fcfcfc;
+    display:none;
+} */
+/* å³ä¾§ */
+.homerightpagearea{
+    padding-top: 40px;
+    width: 1200px;
+    min-height: 558px;
+    margin:0 auto;
+}
+.home_status_topo{
+    margin:0 auto;
+    padding-top: 80px;
+}
+/* å·¦è¾¹ å¼€å§‹*/
+.signalStatus{
+    margin-top: 40px;
+    height: 98px;
+    width: 150px;
+}
+/* æ²¡æœ‰simå¡çš„æ ·å¼ */
+/*ä¿¡å·å˜æ¢çš„cssæ ·å¼*/
+/* æ¼«æ¸¸çˆ¶å…ƒç´  */
+.home_plmn_roam_box{
+    height:22px;
+    display: inline-block;
+    line-height:22px;
+}
+/*----------------------------  */
+/* ä¸­é—´çš„é“¾æŽ¥çŠ¶æ€ */
+.home_wan_connected_status{
+    margin:0 auto;
+    color:#000;
+}
+/* low batteryçš„css */
+.battery_low{
+    width: 120px;
+    height:76px;
+    margin-top: 8px;
+    padding-top:3px;
+    background-repeat: no-repeat;
+background-image: url(../res/battery_low.gif?r=1667264939);
+}
+/* battery_chargeçš„css */
+.battery_charge{
+    margin-top:8px;
+    padding-top:3px;
+    width:120px;
+    height:76px;
+    background-repeat: no-repeat;
+background-image: url(../res/battery_charge.gif?r=1667264939);
+}
+/* homeä¸‹çš„æ‰€æœ‰aæ ‡è®°æ ·å¼ */
+.home_a{
+    text-decoration: none;
+    outline: 0 none;
+}
+/* home_wifisingle_enableçš„æ ·å¼ */
+
+/* åˆ‡æ ·å¼çš„hilink TODO: */
+/* äº’è”ç½‘çš„é‚£ä¸ªå¤§çƒä¸€æ ·çš„ */
+/* å€’çƒ */
+.home #roam_icon{
+    font-size: 20px;
+    color: #7d7d7d;
+    vertical-align: middle;
+}
+/* æŒ‰é’®çš„æ ·å¼å±žæ€§ */
+.home_connect_btn{
+    margin:40px auto 0 auto;
+}
+/* æ¸…é™¤æµ®åŠ¨ */
+.home_clearboth{
+    clear: both;
+    zoom: 1;
+}
+/* hotlink_containeréƒ¨åˆ† */
+#home_hotlink_container{
+    padding-top: 40px;
+}
+#home_hotlink_container>ul{
+    padding: 10px 20px 5px 20px;
+}
+/* pointer */
+.home_pointer{
+    cursor: pointer;
+}
+/* cssæ ·å¼ */
+.home_color_homeWlan_gray {color: #B8B8B8 !important;}
+.home_selectmenu {color: #007DFF !important;}
+.home_direction{
+    max-width: 160px;
+    word-wrap:break-word;
+}
+.noPointEvents{
+    pointer-events:none
+}
+.hasPointEvent{
+    cursor:pointer;
+}
+.absolute{
+    position: absolute;
+}
+.margintop-40{
+    margin-top: -40px;
+}
+.paddingTop30{
+    padding-top: 30px;
+}
+.paddingTop140{
+padding-top: 140px;
+}
+.paddingTop60{
+padding-top: 70px;
+}
+.paddingTop120{
+padding-top: 120px;
+}
+.paddingRight22{
+    padding-right:22px;
+}
+.paddingTop0{
+padding-top: 0px;
+}
+.homeIcon{
+position: absolute;
+top:-75px;
+left:-50%;
+}
+.wanDesMoreLen{
+    word-break: break-all;
+    line-height:15px;
+    width: 100%;
+    display:inline-block;
+}
+.wanDesNormalLen{
+    display:inline-block;
+    height:20px;
+    word-break: break-all;
+}
+#reject5g{
+    position: relative;
+}
+#reject5g .reject5g-text{
+    border: 1px solid #cccccc;
+    position: absolute;
+    top: -10px;
+}
+#reject5g .reject5g-icon{
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: inline-block;
+    background-color: #FB7437;
+    text-align: center;
+    margin-top: 1px;
+}
+#reject5g .reject5g-icon i{
+    font-size: 16px;
+    line-height: 20px;
+    color: #fff;
+}
+#home_plmn_description {
+    direction: ltr;
+}
+.home_sim_5g4g_on_00, .home_sim_5g4g_on_01, .home_sim_5g4g_on_02, .home_sim_5g4g_on_03, .home_sim_5g4g_on_04, .home_sim_5g4g_on_05,
+.home_sim_5g4g_on_10, .home_sim_5g4g_on_11, .home_sim_5g4g_on_12, .home_sim_5g4g_on_13, .home_sim_5g4g_on_14, .home_sim_5g4g_on_15,
+.home_sim_5g4g_on_20, .home_sim_5g4g_on_21, .home_sim_5g4g_on_22, .home_sim_5g4g_on_23, .home_sim_5g4g_on_24, .home_sim_5g4g_on_25,
+.home_sim_5g4g_on_30, .home_sim_5g4g_on_31, .home_sim_5g4g_on_32, .home_sim_5g4g_on_33, .home_sim_5g4g_on_34, .home_sim_5g4g_on_35,
+.home_sim_5g4g_on_40, .home_sim_5g4g_on_41, .home_sim_5g4g_on_42, .home_sim_5g4g_on_43, .home_sim_5g4g_on_44, .home_sim_5g4g_on_45,
+.home_sim_5g4g_on_50, .home_sim_5g4g_on_51, .home_sim_5g4g_on_52, .home_sim_5g4g_on_53, .home_sim_5g4g_on_54, .home_sim_5g4g_on_55,
+.home_sim_5g4g_off_00, .home_sim_5g4g_off_01, .home_sim_5g4g_off_02, .home_sim_5g4g_off_03, .home_sim_5g4g_off_04, .home_sim_5g4g_off_05,
+.home_sim_5g4g_off_10, .home_sim_5g4g_off_11, .home_sim_5g4g_off_12, .home_sim_5g4g_off_13, .home_sim_5g4g_off_14, .home_sim_5g4g_off_15,
+.home_sim_5g4g_off_20, .home_sim_5g4g_off_21, .home_sim_5g4g_off_22, .home_sim_5g4g_off_23, .home_sim_5g4g_off_24, .home_sim_5g4g_off_25,
+.home_sim_5g4g_off_30, .home_sim_5g4g_off_31, .home_sim_5g4g_off_32, .home_sim_5g4g_off_33, .home_sim_5g4g_off_34, .home_sim_5g4g_off_35,
+.home_sim_5g4g_off_40, .home_sim_5g4g_off_41, .home_sim_5g4g_off_42, .home_sim_5g4g_off_43, .home_sim_5g4g_off_44, .home_sim_5g4g_off_45,
+.home_sim_5g4g_off_50, .home_sim_5g4g_off_51, .home_sim_5g4g_off_52, .home_sim_5g4g_off_53, .home_sim_5g4g_off_54, .home_sim_5g4g_off_55
+{
+    margin-top: 19px;
+}
+.home_router { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: 0px 0px; width: 78px; height: 138px;}
+.home_internet { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -83px 0px; width: 114px; height: 98px;}
+.home_internet1 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -202px 0px; width: 114px; height: 98px;}
+.home_wifi_0 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -321px 0px; width: 114px; height: 98px;}
+.home_wifi_1 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -440px 0px; width: 114px; height: 98px;}
+.home_wifi_2 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -559px 0px; width: 114px; height: 98px;}
+.home_wifi_3 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -678px 0px; width: 114px; height: 98px;}
+.home_wifi_4 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -797px 0px; width: 114px; height: 98px;}
+.home_no_sim { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -916px 0px; width: 114px; height: 98px;}
+.home_sim_off_0 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -1035px 0px; width: 114px; height: 98px;}
+.home_sim_off_1 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -1154px 0px; width: 114px; height: 98px;}
+.home_sim_off_2 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -1273px 0px; width: 114px; height: 98px;}
+.home_sim_off_3 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -1392px 0px; width: 114px; height: 98px;}
+.home_sim_off_4 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -1511px 0px; width: 114px; height: 98px;}
+.home_sim_off_5 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -1630px 0px; width: 114px; height: 98px;}
+.home_sim_on_0 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -1749px 0px; width: 114px; height: 98px;}
+.home_sim_on_1 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -1868px 0px; width: 114px; height: 98px;}
+.home_sim_on_2 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -1987px 0px; width: 114px; height: 98px;}
+.home_sim_on_3 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -2106px 0px; width: 114px; height: 98px;}
+.home_sim_on_4 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -2225px 0px; width: 114px; height: 98px;}
+.home_sim_on_5 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -2344px 0px; width: 114px; height: 98px;}
+.battery_normal { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -2463px 0px; width: 120px; height: 76px;}
+.home_desktop { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -2588px 0px; width: 120px; height: 100px;}
+.home_sim_5g4g_off_00 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -2713px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_off_01 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -2842px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_off_02 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -2971px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_off_03 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -3100px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_off_04 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -3229px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_off_05 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -3358px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_off_10 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -3487px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_off_11 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -3616px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_off_12 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -3745px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_off_13 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -3874px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_off_14 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -4003px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_off_15 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -4132px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_off_20 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -4261px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_off_21 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -4390px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_off_22 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -4519px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_off_23 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -4648px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_off_24 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -4777px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_off_25 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -4906px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_off_30 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -5035px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_off_31 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -5164px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_off_32 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -5293px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_off_33 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -5422px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_off_34 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -5551px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_off_35 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -5680px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_off_40 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -5809px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_off_41 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -5938px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_off_42 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -6067px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_off_43 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -6196px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_off_44 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -6325px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_off_45 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -6454px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_off_50 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -6583px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_off_51 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -6712px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_off_52 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -6841px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_off_53 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -6970px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_off_54 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -7099px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_off_55 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -7228px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_on_00 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -7357px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_on_01 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -7486px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_on_02 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -7615px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_on_03 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -7744px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_on_04 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -7873px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_on_05 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -8002px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_on_10 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -8131px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_on_11 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -8260px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_on_12 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -8389px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_on_13 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -8518px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_on_14 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -8647px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_on_15 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -8776px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_on_20 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -8905px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_on_21 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -9034px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_on_22 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -9163px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_on_23 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -9292px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_on_24 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -9421px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_on_25 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -9550px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_on_30 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -9679px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_on_31 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -9808px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_on_32 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -9937px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_on_33 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -10066px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_on_34 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -10195px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_on_35 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -10324px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_on_40 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -10453px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_on_41 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -10582px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_on_42 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -10711px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_on_43 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -10840px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_on_44 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -10969px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_on_45 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -11098px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_on_50 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -11227px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_on_51 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -11356px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_on_52 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -11485px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_on_53 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -11614px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_on_54 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -11743px 0px; width: 124px; height: 76px;}
+.home_sim_5g4g_on_55 { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -11872px 0px; width: 124px; height: 76px;}
+.home_routerhilink { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -12001px 0px; width: 141px; height: 63px;}
+.home_routerwingle { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -12147px 0px; width: 141px; height: 64px;}
+.home_desktophilink { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -12293px 0px; width: 144px; height: 100px;}
+.home_connect_fail { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -12442px 0px; width: 160px; height: 25px;}
+.home_connect_ok { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -12607px 0px; width: 160px; height: 24px;}
+.home_sim_close { background-image: url(../res/emui-icon11.png?r=1667264939); background-position: -12772px 0px; width: 160px; height: 24px;}
+
+

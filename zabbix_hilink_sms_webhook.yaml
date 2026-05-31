@@ -1,0 +1,64 @@
+zabbix_export:
+  version: '6.0'
+  media_types:
+    - name: Hilink SMS Gateway
+      type: WEBHOOK
+      parameters:
+        - name: phone
+          value: '{ALERT.SENDTO}'
+        - name: message
+          value: '{ALERT.MESSAGE}'
+        - name: url
+          value: 'http://192.168.5.20/cgi-bin/sms-gw.pl'
+      script: |
+        var params = value;
+        if (typeof params === 'string') {
+            try {
+                params = JSON.parse(params);
+            } catch (err) {
+                params = {};
+            }
+        }
+        params = params || {};
+
+        function pick(keys, fallback) {
+            var lowerMap = {};
+            keys.forEach(function(k){lowerMap[k.toLowerCase()] = true;});
+
+            for (var prop in params) {
+                if (!params.hasOwnProperty(prop)) continue;
+                var norm = (prop || '').toString().toLowerCase();
+                if (lowerMap[norm] && params[prop] !== undefined && params[prop] !== null && String(params[prop]).length) {
+                    return params[prop];
+                }
+            }
+
+            return fallback;
+        }
+
+        var phone = pick(['phone','sendto','to','alertsendto','alert.sendto'], '');
+        var message = pick(['message','msg','alertmessage','alert.message'], '');
+        var baseUrl = pick(['url','endpoint','gateway'], 'http://192.168.5.20/cgi-bin/sms-gw.pl');
+
+        if (!phone) {
+            throw 'Phone number is not provided.';
+        }
+
+        message = String(message || '');
+
+        function encode(str) {
+            return encodeURIComponent(str).replace(/%20/g, '+');
+        }
+
+        var request = new HttpRequest();
+        var payload = 'action=send&phone=' + encode(phone) + '&msg=' + encode(message);
+        var separator = baseUrl.indexOf('?') === -1 ? '?' : '&';
+        var fullUrl = baseUrl + separator + payload;
+
+        var response = request.get(fullUrl);
+
+        if (request.getStatus() !== 200 || !response.match(/^OK\b/)) {
+            throw 'SMS gateway error: HTTP ' + request.getStatus() + ' Response: ' + response;
+        }
+
+        return response;

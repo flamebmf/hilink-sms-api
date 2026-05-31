@@ -1,0 +1,39 @@
+.messagesettings {
+  margin-bottom: 46px;
+}
+.messagesettings .importBtn {
+  margin-top: 30px;
+}
+.messagesettings .importBtn .btnLabel {
+  display: inline-block;
+  width: 180px;
+}
+.messagesettings .importBtn .el-dialog__body {
+  font-size: 14px;
+}
+.messagesettings .importBtn .el-dialog__body .confirmContent {
+  padding-top: 20px;
+}
+.messagesettings .importBtn .el-dialog__body .diaImg {
+  padding: 0 0 5px 0;
+}
+.messagesettings .importBtn .el-dialog__footer {
+  padding-top: 30px;
+}
+.messagesettings .importBtn .el-dialog__footer .btnBlock {
+  margin-bottom: 30px;
+}
+.messagesettings .importBtn .confirmBtn {
+  margin-left: 12px;
+}
+.messagesettings .saveBtn {
+  margin-top: 50px;
+  padding-left: 183px;
+}
+.messagesettings .forwardBlock p {
+  margin-top: 10px;
+  padding-left: 187px;
+  color: #656565;
+  width: 340px;
+}
+

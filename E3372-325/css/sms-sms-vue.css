@@ -1,0 +1,112 @@
+
+.tableNoDefaultBorderStyle{
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.sms_table{
+  width: 680px;
+}
+.sms_tableTop{
+  height: 65px;
+  border: 1px solid #E9E9E9;
+  border-bottom: 0px;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+.sms_tableContent{
+  height: 430px;
+  border: 1px solid #E9E9E9;
+}
+.sms_tableBottom{
+  margin-bottom: 40px;
+  border: 1px solid #E9E9E9;
+  border-top: 0px;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+.tableBox{
+  display: table;
+}
+.tablecell{
+  display: table-cell;
+  vertical-align: middle;
+}
+.borderTop{
+  border-top: 1px solid #E9E9E9;
+}
+.borderBottom{
+  border-bottom: 1px solid #E9E9E9;
+}
+.height420{
+  height: 420px;
+}
+.ellipsis{
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.border{
+  border: 1px solid #E9E9E9;
+}
+.paddingBottom8{
+  padding-bottom: 8px;
+}
+.paddingBottom20{
+  padding-bottom: 20px;
+}
+.bgBlue{
+  color: #fff;
+  background-color: #007DFF;
+}
+.bgGrey{
+  background-color: #EFEFEF;
+}
+.bgBlueHover{
+  color: #fff;
+  background-color: #0063CB;
+}
+.bgGreyHover{
+  background-color: #E4E4E4;
+}
+/* å›¾æ ‡å¤„ç† */
+#sms .icon-ic_back_normal,#sms .icon-delete,#sms .icon-ic_right{
+  font-size: 30px;
+}
+#sms .icon-ic_contacts,#sms .icon-sms_resend{
+  font-size: 25px;
+}
+#sms .icon-sms_send_normal{
+  font-size: 20px;
+}
+#sms .icon-ic_contacts.noPbNum{
+  font-size: 85px;
+}
+#sms .icon-delete,#sms .icon-new_create{
+  font-size: 23px;
+  color: #007DFF;
+}
+.ic_warning_box{
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: inline-block;
+  background-color: #FB7437;
+  text-align: center;
+}
+.ic_warning_box i{
+    font-size: 16px;
+    line-height: 20px;
+    color: #fff;
+}
+.ellipsis {
+overflow: hidden;
+text-overflow: ellipsis;
+white-space: nowrap;
+}
+#sms .pointer{
+  cursor: pointer
+}
+#sms .icon-new_create:hover,#sms .icon-ic_back_normal:hover,#sms .icon-ic_right:hover,#sms .icon-ic_contacts:hover,#sms .icon-sms_resend:hover,#sms .icon-delete:hover,#sms .icon-sms_send_normal:hover{
+color: #0064CC;
+}
+
