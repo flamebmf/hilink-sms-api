@@ -77,6 +77,7 @@ body { font-family: 'Roboto', sans-serif; background: var(--bg); color: var(--te
     <button class="nav-tab-btn" data-tab="sms">SMS</button>
     <button class="nav-tab-btn" data-tab="config">Config</button>
     <button class="nav-tab-btn" data-tab="inbox">Inbox</button>
+    <button class="nav-tab-btn" data-tab="settings">Settings</button>
   </div>
 
   <!-- Device -->
@@ -150,6 +151,29 @@ body { font-family: 'Roboto', sans-serif; background: var(--bg); color: var(--te
     <div class="card-dash">
       <div class="card-dash-header"><span>SMS Inbox</span><span class="refresh-icon bi bi-arrow-clockwise" onclick="loadInbox()"></span></div>
       <div class="card-dash-body" id="inboxBody"><span class="skeleton"></span></div>
+    </div>
+  </div>
+
+  <!-- Settings -->
+  <div class="tab-panel d-none" id="panel-settings">
+    <div class="card-dash">
+      <div class="card-dash-header">Change Password</div>
+      <div class="card-dash-body" style="max-width:400px">
+        <div style="margin-bottom:10px">
+          <label style="color:var(--muted);font-size:.78rem;display:block;margin-bottom:4px">Current Password</label>
+          <input type="password" id="oldPass" style="width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:8px 12px;color:var(--text);font-size:.85rem">
+        </div>
+        <div style="margin-bottom:10px">
+          <label style="color:var(--muted);font-size:.78rem;display:block;margin-bottom:4px">New Password</label>
+          <input type="password" id="newPass" style="width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:8px 12px;color:var(--text);font-size:.85rem">
+        </div>
+        <div style="margin-bottom:10px">
+          <label style="color:var(--muted);font-size:.78rem;display:block;margin-bottom:4px">Confirm New Password</label>
+          <input type="password" id="confirmPass" style="width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:8px 12px;color:var(--text);font-size:.85rem">
+        </div>
+        <button onclick="changePassword()" style="background:linear-gradient(135deg,#00d4ff,#7b61ff);border:none;color:#04070d;padding:8px 24px;border-radius:8px;font-weight:700;font-size:.82rem;cursor:pointer;transition:all .3s">Change Password</button>
+        <div id="passResult" style="margin-top:8px;font-size:.8rem"></div>
+      </div>
     </div>
   </div>
 
@@ -232,7 +256,23 @@ function loadTab(name){
     case 'sms': loadSmsCount(); loadSendStatus(); break;
     case 'config': loadSmsConfig(); loadSmsConfigXml(); break;
     case 'inbox': loadInbox(); break;
+    case 'settings': break;
   }
+}
+
+function changePassword(){
+  var oldP=document.getElementById('oldPass').value;
+  var newP=document.getElementById('newPass').value;
+  var confP=document.getElementById('confirmPass').value;
+  var res=document.getElementById('passResult');
+  if(!oldP||!newP||!confP){res.innerHTML='<span style="color:#ff4d4d">Fill all fields</span>';return;}
+  if(newP!==confP){res.innerHTML='<span style="color:#ff4d4d">Passwords do not match</span>';return;}
+  if(newP.length<4){res.innerHTML='<span style="color:#ff4d4d">Too short (min 4)</span>';return;}
+  res.innerHTML='<span class="skeleton"></span>';
+  fetch(API+'?action=change-password&old='+encodeURIComponent(oldP)+'&new='+encodeURIComponent(newP)).then(function(r){return r.text();}).then(function(t){
+    if(t==='OK'){res.innerHTML='<span style="color:#00d4ff">Password changed</span>';document.getElementById('oldPass').value='';document.getElementById('newPass').value='';document.getElementById('confirmPass').value='';}
+    else{res.innerHTML='<span style="color:#ff4d4d">'+esc(t)+'</span>';}
+  }).catch(function(e){res.innerHTML='<span style="color:#ff4d4d">Request failed</span>';});
 }
 
 function toast(msg){

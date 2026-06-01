@@ -14,6 +14,7 @@ $| = 1;
 my $MODEM = 'http://192.168.8.1';
 my $JOB_DIR = '/tmp/hilink-sms-jobs';
 my $LOG_FILE = '/var/www/cgi-bin/log/hilink-sms.log';
+my $HTPASSWD_FILE = '/var/www/cgi-bin/.htpasswd';
 my $q = CGI->new;
 my $action = $q->param('action') || '';
 
@@ -537,6 +538,22 @@ if ($action eq 'send') {
     print api_get('api/sms/sms-count');
 } elsif ($action eq 'sms-config') {
     print api_get('api/sms/config');
+} elsif ($action eq 'change-password') {
+    my $old = $q->param('old') || '';
+    my $new = $q->param('new') || '';
+    if (length $new < 4) { print "ERROR: password too short"; }
+    else {
+        system('htpasswd', '-vb', $HTPASSWD_FILE, 'admin', $old);
+        if ($? == 0) {
+            my $new_hash = `htpasswd -nb admin '$new' 2>/dev/null | cut -d: -f2`;
+            chomp $new_hash;
+            if ($new_hash) {
+                open my $out, '>', $HTPASSWD_FILE;
+                if ($out) { print {$out} "admin:$new_hash\n"; close $out; print "OK"; log_msg('INFO', 'password changed'); }
+                else { print "ERROR: write failed"; }
+            } else { print "ERROR: hash failed"; }
+        } else { print "ERROR: wrong password"; }
+    }
 } elsif ($action eq 'sms-config-xml') {
     print api_get('config/sms/config.xml');
 } else {

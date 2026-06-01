@@ -85,6 +85,23 @@ WebUI API map expansion:
 - Kept destructive/system-changing WebUI endpoints out of the generic POST allowlist by default.
 - Perl syntax check passes after adding the allowlist API.
 
+## 2026-06-01 — Password change UI via Settings tab
+
+Status: Смена пароля через веб-интерфейс, без SSH.
+
+Changed:
+- `action=change-password&old=...&new=...` в `sms-gw.pl` — верифицирует старый пароль через `htpasswd -vb`, записывает новый.
+- `HTPASSWD_FILE` = `/var/www/cgi-bin/.htpasswd` (group apache, mode 660 — доступно на запись CGI).
+- `hilink-dash.html`: вкладка **Settings** с формой смены пароля (старый, новый, подтверждение).
+- Apache config: `AuthUserFile` обновлён на `/var/www/cgi-bin/.htpasswd`.
+- Git: коммит `61d13e7`, `3e6bf38`.
+
+Verified:
+- `curl -u admin:hilink2026 '...?action=change-password&old=hilink2026&new=test321'` → OK
+- `curl -u admin:test321 http://.../hilink-dash.html` → 200
+- `curl -u admin:hilink2026 http://.../hilink-dash.html` → 401 (после смены)
+- Возврат к исходному паролю — OK.
+
 ## 2026-06-01 — Dashboard redesigned in PlurumTech style
 
 Status: `hilink-dash.html` полностью переработан в тёмной теме PlurumTech.
