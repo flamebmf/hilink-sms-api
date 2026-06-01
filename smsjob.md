@@ -1,240 +1,201 @@
-# Hilink SMS Gateway Work Status
+# Hilink SMS Gateway — Журнал работ
 
-Copyright (c) 2026 PlurumTech.com. All rights reserved.
-See LICENSE for terms.
+Copyright (c) 2026 PlurumTech.com. Все права защищены.
+См. LICENSE.
 
-## 2026-05-06
+## 2026-05-06 — Исправление отправки SMS
 
-Status: initial Perl SMS send fixes applied.
+Статус: начальные исправления Perl-скрипта отправки SMS.
 
-Findings:
-- WebUI maps `smsSend` to `/api/sms/send-sms` and builds XML with `Index`, `Phones/Phone`, `Sca`, `Content`, `Length`, `Reserved`, and `Date`.
-- WebUI sends the request through its password/token helper and then polls `/api/sms/send-status`.
-- `smssend.pl` had an invalid token header name: `:__RequestVerificationToken` instead of `__RequestVerificationToken`.
-- `sms-gw.pl` fetched `SesTokInfo` but did not send the `Cookie` header on SMS POST requests.
-- Session parsing must tolerate both `<SesInfo>rawid</SesInfo>` and `<SesInfo>SessionID=rawid</SesInfo>`.
+Находки:
+- WebUI маппит `smsSend` на `/api/sms/send-sms`, формирует XML с `Index`, `Phones/Phone`, `Sca`, `Content`, `Length`, `Reserved`, `Date`.
+- WebUI отправляет запрос через password/token helper, затем опрашивает `/api/sms/send-status`.
+- `smssend.pl` — неверное имя заголовка токена: `:__RequestVerificationToken` вместо `__RequestVerificationToken`.
+- `sms-gw.pl` не отправлял `Cookie` на SMS POST (хотя SesTokInfo получал).
+- Парсинг сессии должен допускать `<SesInfo>rawid</SesInfo>` и `<SesInfo>SessionID=rawid</SesInfo>`.
 
-Changed:
-- Backups created with timestamped `.bak` suffix for edited Perl files.
-- `smssend.pl` now imports `HTTP::Request`, sends `Cookie`, sends the correct token header, and uses `text/xml; charset=UTF-8`.
-- `sms-gw.pl` now normalizes session cookie, sends `Cookie` for send/list/delete, sends the correct token header, and uses `text/xml; charset=UTF-8`.
+Изменено:
+- Бэкапы создаются с timestamp `.bak`.
+- `smssend.pl`: добавлен `HTTP::Request`, Cookie, правильный токен, `text/xml; charset=UTF-8`.
+- `sms-gw.pl`: нормализация cookie сессии, Cookie для send/list/delete, правильный токен, `text/xml; charset=UTF-8`.
 
-Verified:
-- `perl -c smssend.pl` passes.
-- `perl -c sms-gw.pl` passes.
-
-Next:
-- Test against the modem with a real phone number.
-- If `/api/sms/send-sms` returns OK but SMS is not delivered, add polling of `/api/sms/send-status` like WebUI.
-- If error `125001` appears, refresh `SesTokInfo` and retry once with a new token/session.
-
-Update:
-- CGI endpoint `http://<server>/cgi-bin/sms-gw.pl` responds with `OK` for the default action.
-- `action=list` returned modem error `125003`, so `sms-gw.pl` now retries POST requests once after refreshing `SesTokInfo` for token/session errors `125001`, `125002`, and `125003`.
-- Added `action=debug` to report whether `SesTokInfo` returns a session and token.
-
-Proxy/API discovery:
-- There is a proxy to the modem on port 8080.
-- GET endpoints work through the proxy, including `/api/sms/config` and `/api/sms/sms-count`.
-- POST `/api/sms/sms-list` with old `SesTokInfo` token returns `125003`.
-- WebUI `getToken` calls `/api/webserver/token` and stores `token.substr(32)` as the POST token.
-- `sms-gw.pl` now uses `/api/webserver/token`, sends the last 32 characters as `__RequestVerificationToken`, and keeps the `SessionID` cookie from that token request.
-
-CGI debug result:
-- Remote debug returned `session=yes`, `token=yes`, `post_session=no`, `post_token=yes`.
-- Cause: `LWP::UserAgent` did not have a cookie jar enabled, and cookie scanning used the wrong callback argument positions.
-- Fixed: enabled `HTTP::Cookies` cookie jar and corrected `scan` extraction for `SessionID`.
-
-Latest remote result:
-- Remote debug now returns `post_session=yes`, `post_token=yes`, but `action=list` still returns `125003`.
-- Added `Origin` and `Referer` to the WebUI token POST path.
-- Added `action=probe` to test SMS list with short web token, full web token, and old SesTok token across form/xml content types.
-
-Root cause found:
-- Perl `HTTP::Headers` translates underscores to dashes when serializing header names.
-- `__RequestVerificationToken` became `--RequestVerificationToken`, and `_ResponseSource` became `-ResponseSource`.
-- Modem therefore never received the CSRF header and returned `125003` for every POST variant.
-- `sms-gw.pl` now uses a raw TCP HTTP POST for modem POST requests so header names are sent exactly as WebUI sends them.
-
-Remote probe result:
-- `webtoken_short_form=response`
-- `webtoken_short_xml=response`
-- `webtoken_full_form=response`
-- `sestok_form=response`
-- `sestok_xml=response`
-- Conclusion: raw POST fixed `125003`; the modem accepts the CSRF/session data once underscore headers are sent literally.
-- Added `action=send-status` for checking `/api/sms/send-status` after an SMS send attempt.
-
-Send-status result:
-- `/api/sms/send-status` returned `FailPhone=XXXXXXXXXXX`, so SMS API accepted the send task but modem/network rejected the recipient/message.
-- WebUI phone validation allows a leading `+`, but `sms-gw.pl` stripped it. Updated phone normalization to preserve one leading `+`.
-- `Reserved` is now configurable with `reserved=` and defaults to `0` instead of fixed `1`.
-- `Sca` is now configurable with `sca=` for testing SMS center behavior.
-- Confirmed working send URL used `%2B` for leading plus.
-
-API expansion:
-- `send` now normalizes phone numbers and automatically adds `+` for Russian `7XXXXXXXXXX` and converts `8XXXXXXXXXX` to `+7XXXXXXXXXX`.
-- Added `send-async` action. It forks a background sender and returns a job id immediately.
-- Added job status storage under `/tmp/hilink-sms-jobs`.
-- Added `job&id=...` and `jobs` actions.
-- Added modem read-only actions: `status`, `info`, `signal`, `sms-count`, `sms-config`, `sms-config-xml`.
-- Perl syntax check passes after the API expansion.
-
-WebUI API map expansion:
-- Extracted representative endpoint names from WebUI `main.js` API map.
-- Added allowlisted generic `action=get&name=...` for safe read-only endpoints.
-- Added allowlisted generic `action=post&name=...&xml=...` for selected SMS/USSD POST endpoints.
-- Added `action=api-list` to expose supported allowlist names and paths.
-- Kept destructive/system-changing WebUI endpoints out of the generic POST allowlist by default.
-- Perl syntax check passes after adding the allowlist API.
-
-## 2026-06-01 — Password change UI via Settings tab
-
-Status: Смена пароля через веб-интерфейс, без SSH.
-
-Changed:
-- `action=change-password&old=...&new=...` в `sms-gw.pl` — верифицирует старый пароль через `htpasswd -vb`, записывает новый.
-- `HTPASSWD_FILE` = `/var/www/cgi-bin/.htpasswd` (group apache, mode 660 — доступно на запись CGI).
-- `hilink-dash.html`: вкладка **Settings** с формой смены пароля (старый, новый, подтверждение).
-- Apache config: `AuthUserFile` обновлён на `/var/www/cgi-bin/.htpasswd`.
-- Git: коммит `61d13e7`, `3e6bf38`.
-
-Verified:
-- `action=change-password&old=<old>&new=<new>` → OK
-- Dashboard доступен с новым паролем, старый → 401.
-
-## 2026-06-01 — Dashboard redesigned in PlurumTech style
-
-Status: `hilink-dash.html` полностью переработан в тёмной теме PlurumTech.
-
-Changed:
-- Стиль: фон `#04070d`, акценты `#00d4ff`/`#7b61ff`, шрифт Roboto, glassmorphism-карточки.
-- Анимированные фоновые полосы (как на plurumtech.com).
-- Кастомные табы вместо nav-pills.
-- Pt-лого (SVG) внизу экрана (fixed, без фона), текст "PlurumTech" — "Plurum" белый, "Tech" градиент.
-- Git: коммиты `e0fed44`, `40f42b9`, `456112a`, `ecbc383`, `88fcd9c`, `d495587`, `2562f41`, `cd842b9`, `0beb83c`.
-
-Verified:
-- Dashboard returns 200 OK.
-- Все табы загружают данные с CGI.
-
-## Current Ready State
-
-Status: working SMS gateway and partial modem API are implemented in `sms-gw.pl`.
-
-Ready and tested conceptually:
-- CGI endpoint: `/cgi-bin/sms-gw.pl`.
-- SMS list works: `action=list` returns modem XML response.
-- SMS send works when the script normalizes phone to `+7...`; raw URL may pass phone without `+` as `792...` or `892...`.
-- SMS send status works: `action=send-status` proxies `/api/sms/send-status`.
-- Token/session handling works for Brovi/E3372-325 style WebUI token flow.
-- Raw TCP POST is used for modem POST requests because Perl `HTTP::Headers` rewrites underscore headers incorrectly.
-
-Core root causes solved:
-- Old code stripped leading `+` from phone numbers; modem then reported `FailPhone=792...`.
-- Perl/LWP serialized `__RequestVerificationToken` as `--RequestVerificationToken`; modem returned `125003` because the CSRF header was effectively missing.
-- `LWP::UserAgent` needed an explicit `HTTP::Cookies` cookie jar to retain `SessionID` from `/api/webserver/token`.
-- WebUI token flow uses `/api/webserver/token`; WebUI stores `token.substr(32)` as the POST token, but raw POST now works with accepted token/session variants.
-
-Phone normalization:
-- `792...` becomes `+792...`.
-- `892...` becomes `+792...`.
-- `+792...` remains `+792...`.
-
-Main SMS actions:
-- `action=send&phone=+7XXXXXXXXXX&msg=test` - synchronous SMS send.
-- `action=send-async&phone=+7XXXXXXXXXX&msg=test` - forked background SMS send with job id.
-- `action=send-status` - modem send status.
-- `action=list` - SMS inbox list.
-- `action=delete&index=...` - delete SMS by index.
-- `action=sms-count` - SMS counters.
-- `action=sms-config` - SMS runtime config.
-- `action=sms-config-xml` - SMS XML config.
-
-Async jobs:
-- Job files are stored under `/tmp/hilink-sms-jobs`.
-- `action=job&id=...` returns one job status.
-- `action=jobs` returns all known job statuses.
-
-Diagnostics:
-- `action=debug` checks session/token availability.
-- `action=probe` tests POST auth/token variants against `sms-list`.
-- `action=api-list` returns generic API allowlist names and modem paths.
-
-Generic allowlist API:
-- `action=get&name=...` supports read-only modem endpoints from `%GET_API`.
-- `action=post&name=...&xml=...` supports selected SMS/USSD POST endpoints from `%POST_API`.
-- Dangerous/system-changing WebUI endpoints are intentionally not exposed generically.
-
-Useful generic GET examples:
-- `action=get&name=monitoringStatus`
-- `action=get&name=deviceInformation`
-- `action=get&name=deviceSignal`
-- `action=get&name=netCurrentPlmn`
-- `action=get&name=cellInfo`
-- `action=get&name=pinStatus`
-- `action=get&name=smsCount`
-- `action=get&name=smsConfig`
-
-Known caveats:
-- `send-async` relies on Linux `fork` in CGI; if Apache/CGI policy kills child processes, use synchronous `send` or move queue processing to a daemon/cron worker.
-- `/tmp/hilink-sms-jobs` may be cleaned by the OS; use `/var/tmp` or an app-owned directory for persistent job history.
-- Query-string `+` is treated as space by URL encoding rules; clients may send numbers without `+`, or encode plus as `%2B`.
-- Responses are currently XML/text, not JSON.
-
-## 2026-06-01 — Zabbix Webhook Integration Complete
-
-Status: Zabbix webhook fully tested and working via GET method.
-
-Findings:
-- Zabbix webhook POST method returned `OK` but SMS not delivered; `send-status` showed empty `SucPhone/FailPhone`.
-- Root cause: POST from Zabbix returned 200 with 2 bytes ("OK") but message content apparently not reaching modem.
-- Switched to GET-based webhook — Zabbix script now parses `value` as optional JSON string and issues GET request with query params.
-- Tested: GET request with `action=send` confirmed working.
-- After re-importing YAML with GET method, SMS delivered via Zabbix alert.
-
-Changed:
-- `zabbix_hilink_sms_webhook.yaml`: webhook script now does `request.get(fullUrl)` instead of POST; parses `value` as JSON string; uses `encodeURIComponent` with `%20`→`+` for message encoding.
-- No changes to `sms-gw.pl` — GET-based sending already worked.
-- `smsjob.md` updated with final status.
-
-Verified:
-- Zabbix alert successfully delivers SMS via Hilink gateway using GET webhook.
-- CGI endpoint `/cgi-bin/sms-gw.pl?action=send&phone=...&msg=...` returns `OK`.
-- All prior Perl syntax checks pass.
-
-## Git
-- First commit: initial project — working SMS gateway, Zabbix webhook, E3372-325 extracted WebUI.
-
-## 2026-06-01 — Web Dashboard UI added and deployed
-
-Status: Web dashboard deployed — shows device info, signal, network, SMS stats, config, inbox.
-
-Changed:
-- Created `hilink-dash.html` — single-file Bootstrap dashboard with 6 tabs (Device, Signal, Network, SMS, Config, Inbox).
-- Fetches data from `sms-gw.pl` CGI via JS `fetch()` and renders in info grids/tables.
-- Signal tab: visual signal bars + RSRP/RSRQ/RSSI/SINR + quality badge.
-- Inbox tab: SMS list table with index, sender, message, date.
-- Auto-refresh every 30s.
-- Deployed to `/var/www/html/hilink-dash.html`.
-
-## 2026-06-01 — File-based logging added and deployed
-
-Status: Logging added to `/var/www/cgi-bin/log/hilink-sms.log` and working.
-
-Changed:
-- Added `log_msg` sub with timestamp, level, client IP, PID.
-- `$LOG_FILE` = `/var/www/cgi-bin/log/hilink-sms.log` (in a `log/` subdir next to the script).
-- Logs: every incoming action, send_sms debug/ok/fail, unknown actions.
-- Deployed via SCP (SSH key auth).
-- Created `/var/www/cgi-bin/log/` with 777 permissions (apache user needs write).
-
-Verified:
-- Log written and readable: shows full SMS flow (action → send → OK).
+Проверено:
+- `perl -c smssend.pl` — OK.
 - `perl -c sms-gw.pl` — OK.
 
-Recommended next steps:
-- Move Hilink modem logic from `sms-gw.pl` into a reusable Perl module, for example `Hilink/Brovi.pm`.
-- Add explicit safe actions for `ussd`, `mark-read`, `phonebook-list`, and optional `data-on/data-off` only after confirming desired XML bodies.
-- Create Raspberry Pi 3 system image specification and build plan.
-- Add access control for CGI if exposed beyond the trusted LAN.
+Далее:
+- Тест с реальным номером.
+- Если `/api/sms/send-sms` OK но SMS не доставлена — добавить опрос `/api/sms/send-status`.
+- Ошибка `125001` — обновить SesTokInfo и повторить.
+
+## 2026-05-06 — retry и диагностика
+
+Изменения:
+- `action=list` возвращал `125003` — добавлен retry POST после обновления SesTokInfo для `125001/125002/125003`.
+- Добавлен `action=debug` — проверка наличия сессии и токена.
+- CGI endpoint: `http://<server>/cgi-bin/sms-gw.pl` отвечает `OK`.
+
+Прокси/API discovery:
+- Найден прокси к модему на порту 8080.
+- GET endpoints работают через прокси.
+- POST `/api/sms/sms-list` со старым SesTokInfo токеном → `125003`.
+- WebUI `getToken` вызывает `/api/webserver/token` и хранит `token.substr(32)` как POST-токен.
+- `sms-gw.pl` теперь использует `/api/webserver/token`, отправляет последние 32 символа как `__RequestVerificationToken`, сохраняет SessionID cookie.
+
+Отладка:
+- Remote debug: `session=yes`, `token=yes`, `post_session=no`, `post_token=yes`.
+- Причина: у LWP::UserAgent не было cookie jar, scan использовал не те аргументы.
+- Исправлено: включён HTTP::Cookies, исправлен scan для SessionID.
+
+Результат: `post_session=yes`, `post_token=yes`, но `action=list` всё равно `125003`.
+Добавлены Origin и Referer. Добавлен `action=probe` для теста разных методов аутентификации.
+
+Корневая причина:
+- Perl `HTTP::Headers` преобразует подчёркивания в дефисы при сериализации.
+- `__RequestVerificationToken` → `--RequestVerificationToken`, `_ResponseSource` → `-ResponseSource`.
+- Модем не получал CSRF-заголовок → `125003`.
+- Исправлено: raw TCP HTTP POST для всех запросов к модему.
+
+Результаты probe:
+- `webtoken_short_form=response`, `webtoken_short_xml=response`, etc.
+- Вывод: raw POST решил `125003`.
+- Добавлен `action=send-status`.
+
+Статус отправки:
+- `/api/sms/send-status` вернул `FailPhone=XXXXXXXXXXX`.
+- Проблема: `sms-gw.pl` удалял ведущий `+`. Исправлено.
+- `Reserved` теперь настраивается через `reserved=`, по умолчанию `0`.
+- `Sca` настраивается через `sca=`.
+- Рабочая отправка: `%2B` для плюса.
+
+Расширение API:
+- `send` нормализует номер: `8...` → `+7...`, `7...` → `+7...`.
+- Добавлен `send-async` — форк фонового процесса, возвращает ID задания.
+- Хранилище заданий: `/tmp/hilink-sms-jobs`.
+- Добавлены `job&id=...` и `jobs`.
+- Добавлены read-only actions: `status`, `info`, `signal`, `sms-count`, `sms-config`, `sms-config-xml`.
+
+WebUI API map:
+- Извлечены endpoint-ы из `main.js`.
+- Добавлен белый список `action=get&name=...` для чтения.
+- Добавлен `action=post&name=...&xml=...` для SMS/USSD.
+- Добавлен `action=api-list`.
+
+## 2026-06-01 — Смена пароля через Settings
+
+Статус: смена пароля через веб-интерфейс, без SSH.
+
+Изменено:
+- `action=change-password&old=...&new=...` — верификация через `htpasswd -vb`, запись нового.
+- `HTPASSWD_FILE` = `/var/www/cgi-bin/.htpasswd` (group apache, mode 660).
+- `hilink-dash.html`: вкладка Settings с формой смены пароля.
+- Apache: AuthUserFile обновлён.
+
+Проверено:
+- Смена пароля → OK, dashboard с новым паролем → 200, со старым → 401.
+
+## 2026-06-01 — Редизайн дашборда (PlurumTech)
+
+Статус: `hilink-dash.html` полностью переработан в тёмной теме.
+
+Изменено:
+- Фон `#04070d`, акценты `#00d4ff`/`#7b61ff`, Roboto, glassmorphism.
+- Анимированные фоновые полосы.
+- Кастомные табы.
+- Pt-лого (SVG) внизу экрана.
+
+Проверено: дашборд отдаёт 200, все табы загружают данные.
+
+## Текущее состояние
+
+Статус: рабочий SMS-шлюз и частичное API модема.
+
+Готово:
+- CGI: `/cgi-bin/sms-gw.pl`.
+- Список SMS: `action=list` → XML модема.
+- Отправка: `action=send` — нормализация `+7`, работающая отправка.
+- Статус отправки: `action=send-status`.
+- Токен/сессия работают для Brovi/E3372-325.
+- Raw TCP POST для обхода проблемы LWP с подчёркиваниями.
+
+Корневые причины решены:
+- Старый код удалял `+` из номера → модем писал `FailPhone=792...`.
+- LWP сериализовал `__RequestVerificationToken` как `--RequestVerificationToken` → `125003`.
+- Нужен был явный HTTP::Cookies для SessionID.
+- WebUI использует `/api/webserver/token`, хранит `token.substr(32)`.
+
+Нормализация номеров:
+- `792...` → `+792...`, `892...` → `+792...`, `+792...` → `+792...`.
+
+Основные actions:
+- `action=send&phone=+7XXXXXXXXXX&msg=test` — синхронная отправка.
+- `action=send-async&phone=+7XXXXXXXXXX&msg=test` — фоновая отправка с ID.
+- `action=send-status`, `action=list`, `action=delete&index=...`.
+- `action=sms-count`, `action=sms-config`, `action=sms-config-xml`.
+
+Async jobs:
+- Файлы заданий в `/tmp/hilink-sms-jobs`.
+- `action=job&id=...`, `action=jobs`.
+
+Диагностика:
+- `action=debug` — проверка сессии/токена.
+- `action=probe` — тест POST-методов аутентификации.
+- `action=api-list` — список доступных API.
+
+Generic API:
+- `action=get&name=...` — read-only endpoint-ы модема.
+- `action=post&name=...&xml=...` — SMS/USSD POST.
+
+Известные ограничения:
+- `send-async` использует `fork` — может не работать, если Apache/CGI убивает дочерние процессы.
+- `/tmp/hilink-sms-jobs` может быть очищен системой.
+- `+` в query string трактуется как пробел — используйте `%2B`.
+- Ответы в XML, не JSON.
+
+## 2026-06-01 — Zabbix Webhook
+
+Статус: webhook протестирован и работает через GET.
+
+Находки:
+- POST от Zabbix возвращал `OK` (200, 2 байта), но SMS не доставлялась.
+- Причина: сообщение не доходило до модема при POST.
+- Перешли на GET: Zabbix скрипт парсит JSON, шлёт GET с query params.
+- После реимпорта YAML с GET — SMS доставляется.
+
+Изменено:
+- `zabbix_hilink_sms_webhook.yaml`: `request.get(fullUrl)` вместо POST, `encodeURIComponent`, `%20`→`+`.
+
+Проверено:
+- Zabbix alert → SMS через Hilink gateway.
+- `/cgi-bin/sms-gw.pl?action=send&phone=...&msg=...` → OK.
+
+## Git
+- Первый коммит: SMS gateway, Zabbix webhook, E3372-325 WebUI.
+
+## 2026-06-01 — Веб-дашборд
+
+Статус: дашборд развёрнут — device info, signal, network, SMS, config, inbox.
+
+Изменено:
+- `hilink-dash.html` — Bootstrap, 6 вкладок.
+- Signal: визуальные полосы + RSRP/RSRQ/RSSI/SINR.
+- Inbox: таблица SMS.
+- Автообновление 30с.
+- Развёрнут на сервере.
+
+## 2026-06-01 — Логирование
+
+Статус: логи в `/var/www/cgi-bin/log/hilink-sms.log`, работает.
+
+Изменено:
+- `log_msg`: timestamp, уровень, IP, PID.
+- Логи: каждый action, send_sms debug/ok/fail, неизвестные action.
+- Развёрнуто по SCP.
+
+Проверено: лог пишется, виден полный SMS-флоу.
+
+## Рекомендации
+- Вынести логику модема в отдельный Perl-модуль (сделано: HilinkSMS.pm).
+- Добавить `ussd`, `mark-read`, `phonebook-list`.
+- Raspberry Pi 3 — спецификация образа.
+- Контроль доступа при публичном暴露.
