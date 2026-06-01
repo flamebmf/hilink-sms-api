@@ -23,7 +23,9 @@ Copyright (c) 2026 PlurumTech.com. See [LICENSE](LICENSE) for terms.
 
 | File | Purpose |
 |------|---------|
-| `sms-gw.pl` | Main CGI handler (send SMS, API proxy, password change) |
+| `HilinkSMS.pm` | Core Perl module — all modem logic |
+| `sms-gw.pl` | Thin CGI wrapper (Apache) |
+| `hilink-smsd.pl` | Standalone HTTP daemon (no Apache needed) |
 | `hilink-dash.html` | Web dashboard UI |
 | `hilink-auth.conf` | Apache Basic Auth config |
 | `zabbix_hilink_sms_webhook.yaml` | Zabbix media type import |
@@ -90,3 +92,15 @@ Configure user media with URL: `http://server/cgi-bin/sms-gw.pl`
 Parameters: `phone`, `msg` — script sends GET with `action=send`.
 
 Zabbix requests from the whitelisted IP bypass Basic Auth.
+
+## Standalone Daemon (No Apache)
+
+Run without Apache:
+
+```bash
+perl hilink-smsd.pl --daemon --port 8080
+```
+
+Access API at `http://localhost:8080/cgi-bin/sms-gw.pl?action=signal`
+
+No authentication, no Apache — works as a local API proxy on any machine with modem access.

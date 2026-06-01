@@ -269,6 +269,49 @@ Content-Type: application/x-www-form-urlencoded; charset=UTF-8
 
 ---
 
-## 4. Deployment
+## 4. Standalone Daemon
+
+The API can run as a standalone HTTP server without Apache.
+
+```bash
+perl hilink-smsd.pl --daemon --port 8080
+```
+
+Then use `http://localhost:8080/cgi-bin/sms-gw.pl?action=...` — same API, no Apache or auth needed.
+
+### Options
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--daemon` | off | Run as HTTP server (required) |
+| `--port` | 8080 | Listen port |
+| `--host` | 0.0.0.0 | Bind address |
+
+### Daemon vs CGI
+
+| Aspect | CGI (Apache) | Standalone |
+|--------|-------------|------------|
+| Auth | Apache Basic Auth | No built-in auth |
+| Port | 80/443 | 8080 |
+| Start | Apache handles | `perl hilink-smsd.pl --daemon` |
+| Log file | `/var/www/cgi-bin/log/hilink-sms.log` | Same |
+| Location | Server | Any machine with modem access |
+
+---
+
+## 5. Files
+
+| File | Purpose |
+|------|---------|
+| `HilinkSMS.pm` | Core module — all modem logic |
+| `sms-gw.pl` | Thin CGI wrapper (Apache) |
+| `hilink-smsd.pl` | Standalone HTTP daemon |
+| `hilink-dash.html` | Web dashboard UI |
+| `hilink-auth.conf` | Apache Basic Auth config |
+| `zabbix_hilink_sms_webhook.yaml` | Zabbix media type import |
+
+---
+
+## 6. Deployment
 
 See [README.md](README.md) for full installation instructions.
