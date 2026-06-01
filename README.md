@@ -24,8 +24,9 @@ Copyright (c) 2026 PlurumTech.com. See [LICENSE](LICENSE) for terms.
 | File | Purpose |
 |------|---------|
 | `HilinkSMS.pm` | Core Perl module — all modem logic |
-| `sms-gw.pl` | Thin CGI wrapper (Apache) |
-| `hilink-smsd.pl` | Standalone HTTP daemon (no Apache needed) |
+| `sms-gw.pl` | CGI + CLI dual-mode (detects automatically) |
+| `hilink-sms-cli.pl` | CLI-only tool (lightweight alternative) |
+| `hilink-smsd.pl` | Standalone HTTP daemon (no Apache) |
 | `hilink-dash.html` | Web dashboard UI |
 | `hilink-auth.conf` | Apache Basic Auth config |
 | `zabbix_hilink_sms_webhook.yaml` | Zabbix media type import |
@@ -92,6 +93,18 @@ Configure user media with URL: `http://server/cgi-bin/sms-gw.pl`
 Parameters: `phone`, `msg` — script sends GET with `action=send`.
 
 Zabbix requests from the whitelisted IP bypass Basic Auth.
+
+## CLI Usage (No Apache, No HTTP)
+
+Send SMS directly from command line — for cron, scripts, monitoring:
+
+```bash
+perl sms-gw.pl phone=79219615926 text="Alert: server down"
+# or
+perl hilink-sms-cli.pl phone=79219615926 msg="Hello world"
+```
+
+Both scripts talk directly to the modem at `192.168.8.1` with zero setup.
 
 ## Standalone Daemon (No Apache)
 
