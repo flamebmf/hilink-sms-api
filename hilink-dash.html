@@ -149,7 +149,7 @@ body { font-family: 'Roboto', sans-serif; background: var(--bg); color: var(--te
   <!-- Inbox -->
   <div class="tab-panel d-none" id="panel-inbox">
     <div class="card-dash">
-      <div class="card-dash-header"><span>SMS Inbox</span><span class="refresh-icon bi bi-arrow-clockwise" onclick="loadInbox()"></span></div>
+      <div class="card-dash-header"><span>SMS Inbox</span><span style="display:flex;gap:8px;align-items:center"><span class="refresh-icon bi bi-trash3" onclick="clearInbox()" title="Clear All" style="color:var(--muted);cursor:pointer;transition:color .3s" onmouseover="this.style.color='#ff4d4d'" onmouseout="this.style.color=''"></span><span class="refresh-icon bi bi-arrow-clockwise" onclick="loadInbox()"></span></span></div>
       <div class="card-dash-body" id="inboxBody"><span class="skeleton"></span></div>
     </div>
   </div>
@@ -408,6 +408,14 @@ function loadSmsConfigXml(){
 }
 
 // --- Inbox ---
+function clearInbox(){
+  if(!confirm('Delete all messages from inbox?'))return;
+  fetch(API+'?action=clear-inbox').then(function(r){return r.text();}).then(function(t){
+    loadInbox();
+    toast(t);
+  }).catch(function(e){toast('Error: '+e.message);});
+}
+
 function loadInbox(){
   var b=document.getElementById('inboxBody'); b.innerHTML='<span class="skeleton"></span>';
   fetchApi('list').then(function(x){

@@ -514,6 +514,15 @@ if ($action eq 'send') {
     print list_jobs();
 } elsif ($action eq 'list') {
     print list_sms();
+} elsif ($action eq 'clear-inbox') {
+    my $list = list_sms();
+    my @indexes = $list =~ /<Index>(\d+)<\/Index>/g;
+    my $deleted = 0;
+    for my $idx (@indexes) {
+        $deleted++ if delete_sms($idx);
+    }
+    log_msg('INFO', "clear-inbox: deleted $deleted / " . scalar(@indexes));
+    print "OK: deleted $deleted/" . scalar(@indexes);
 } elsif ($action eq 'delete') {
     print delete_sms($q->param('index') || 0) ? "OK" : "ERROR";
 } elsif ($action eq 'send-status') {
