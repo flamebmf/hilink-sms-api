@@ -516,10 +516,11 @@ if ($action eq 'send') {
 } elsif ($action eq 'list') {
     print list_sms(1);
 } elsif ($action eq 'list-outbox') {
-    print list_sms(3);
+    my $box = $q->param('box') || 2;
+    print list_sms($box);
 } elsif ($action eq 'clear-box') {
     my $type = $q->param('type') || 'inbox';
-    my %boxes = (inbox => 1, draft => 2, outbox => 3);
+    my %boxes = (inbox => 1, outbox => 2, draft => 3);
     my $box = $boxes{$type} // 1;
     my $list = list_sms($box);
     my @indexes = $list =~ /<Index>(\d+)<\/Index>/g;
