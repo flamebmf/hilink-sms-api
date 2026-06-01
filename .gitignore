@@ -1,1 +1,24 @@
+# Backup files
 *.bak
+
+# Test and working scripts
+hilinktest.sh
+huawei_hilink_api.sh
+sms-gw.sh
+smssend.pl
+testbox.sh
+
+# Extracted modem reference (vendor WebUI)
+E3372-325/
+
+# Apache htpasswd files (contain credentials)
+.htpasswd
+
+# Log files
+*.log
+
+# Windows thumbnail cache
+Thumbs.db
+
+# macOS metadata
+.DS_Store
