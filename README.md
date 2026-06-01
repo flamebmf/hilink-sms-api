@@ -35,15 +35,15 @@ Copyright (c) 2026 PlurumTech.com. See [LICENSE](LICENSE) for terms.
 
 1. Copy files to server:
 ```bash
-scp sms-gw.pl user@server:/var/www/cgi-bin/
+scp HilinkSMS.pm sms-gw.pl user@server:/var/www/cgi-bin/
 scp hilink-dash.html user@server:/var/www/html/
 scp hilink-auth.conf user@server:/etc/httpd/conf.d/
 ```
 
 2. Set permissions:
 ```bash
-chmod 755 /var/www/cgi-bin/sms-gw.pl
-chgrp apache /var/www/cgi-bin/sms-gw.pl
+chmod 755 /var/www/cgi-bin/sms-gw.pl /var/www/cgi-bin/HilinkSMS.pm
+chgrp apache /var/www/cgi-bin/sms-gw.pl /var/www/cgi-bin/HilinkSMS.pm
 ```
 
 3. Create log directory:
@@ -83,7 +83,8 @@ systemctl reload httpd
 ## Usage
 
 - Dashboard: `http://server/hilink-dash.html`
-- API: `http://server/cgi-bin/sms-gw.pl?action=send&phone=+71234567890&msg=Hello`
+- API (CGI): `http://server/cgi-bin/sms-gw.pl?action=send&phone=+71234567890&msg=Hello`
+- API (CLI): `perl sms-gw.pl phone=79219615926 text="Alert"`
 - Default credentials: `admin` / `hilink2026`
 
 ## Zabbix Integration

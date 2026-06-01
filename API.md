@@ -4,6 +4,22 @@ Copyright (c) 2026 PlurumTech.com. See [LICENSE](LICENSE) for terms.
 
 ---
 
+## Quick Start
+
+```bash
+# CLI — directly to modem, no setup
+perl sms-gw.pl phone=79219615926 text="Hello"
+
+# CGI — via Apache (after install)
+curl "http://host/cgi-bin/sms-gw.pl?action=send&phone=79219615926&msg=Hello"
+
+# Daemon — standalone HTTP
+perl hilink-smsd.pl --daemon --port 8080
+curl "http://localhost:8080/cgi-bin/sms-gw.pl?action=signal"
+```
+
+---
+
 ## 1. CGI Gateway API
 
 Base URL: `http://<host>/cgi-bin/sms-gw.pl`
@@ -166,7 +182,43 @@ Change Apache Basic Auth password.
 
 ---
 
-## 2. Modem Native HiLink API
+## 2. CLI Mode (No Apache)
+
+`sms-gw.pl` auto-detects CLI mode when run from command line (no `GATEWAY_INTERFACE` env).
+
+`hilink-sms-cli.pl` is a lightweight alternative with the same behaviour.
+
+Both talk directly to the modem at `192.168.8.1`.
+
+```bash
+perl sms-gw.pl phone=79219615926 text="Alert message"
+perl hilink-sms-cli.pl phone=79219615926 msg="Alert message"
+```
+
+### Arguments
+
+| Arg | Alias | Required | Description |
+|-----|-------|----------|-------------|
+| `phone=` | — | yes | Phone number (auto-normalized) |
+| `text=` | `msg=` | yes | Message text |
+
+### Exit codes
+
+| Code | Meaning |
+|------|---------|
+| 0 | SMS sent successfully |
+| 1 | Error (invalid args or send failed) |
+
+### Quiet mode (`hilink-sms-cli.pl` only)
+
+```bash
+perl hilink-sms-cli.pl -q phone=79219615926 text="Alert"
+```
+No output, exit code only — for scripts and cron.
+
+---
+
+## 3. Modem Native HiLink API
 
 Modem at `http://192.168.8.1/`.
 
@@ -257,7 +309,7 @@ Content-Type: application/x-www-form-urlencoded; charset=UTF-8
 
 ---
 
-## 3. SMS BoxType Reference
+## 4. SMS BoxType Reference
 
 | BoxType | Counter | Description |
 |---------|---------|-------------|
@@ -269,7 +321,7 @@ Content-Type: application/x-www-form-urlencoded; charset=UTF-8
 
 ---
 
-## 4. Standalone Daemon
+## 5. Standalone Daemon
 
 The API can run as a standalone HTTP server without Apache.
 
@@ -299,12 +351,13 @@ Then use `http://localhost:8080/cgi-bin/sms-gw.pl?action=...` — same API, no A
 
 ---
 
-## 5. Files
+## 6. Files
 
 | File | Purpose |
 |------|---------|
 | `HilinkSMS.pm` | Core module — all modem logic |
-| `sms-gw.pl` | Thin CGI wrapper (Apache) |
+| `sms-gw.pl` | CGI + CLI dual-mode |
+| `hilink-sms-cli.pl` | CLI-only (lightweight) |
 | `hilink-smsd.pl` | Standalone HTTP daemon |
 | `hilink-dash.html` | Web dashboard UI |
 | `hilink-auth.conf` | Apache Basic Auth config |
@@ -312,6 +365,6 @@ Then use `http://localhost:8080/cgi-bin/sms-gw.pl?action=...` — same API, no A
 
 ---
 
-## 6. Deployment
+## 7. Deployment
 
 See [README.md](README.md) for full installation instructions.
