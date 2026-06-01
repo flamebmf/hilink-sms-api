@@ -22,3 +22,7 @@ Thumbs.db
 
 # macOS metadata
 .DS_Store
+
+# Working configs (not for public)
+hilink-auth.conf
+zabbix_hilink_sms_webhook.yaml

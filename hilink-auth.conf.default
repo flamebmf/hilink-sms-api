@@ -7,6 +7,6 @@
   AuthUserFile /var/www/cgi-bin/.htpasswd
   <RequireAny>
     Require valid-user
-    Require ip 192.168.5.12
+    Require ip {zabbix}
   </RequireAny>
 </LocationMatch>
