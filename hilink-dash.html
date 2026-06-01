@@ -368,13 +368,27 @@ function loadNetwork(){
 }
 
 // --- SMS Count ---
+function clearBox(type, label){
+  if(!confirm('Delete all messages from '+label+'?'))return;
+  fetch(API+'?action=clear-box&type='+type).then(function(r){return r.text();}).then(function(t){loadSmsCount();toast(t);}).catch(function(e){toast('Error');});
+}
+
 function loadSmsCount(){
   var b=document.getElementById('smsCountBody'); b.innerHTML='<span class="skeleton"></span>';
   fetchApi('sms-count').then(function(x){
-    b.innerHTML=renderGrid({'Local Inbox':xmlVal(x,'LocalInbox'),'Unread':xmlVal(x,'LocalUnread'),
-      'Local Outbox':xmlVal(x,'LocalOutbox'),'Local Draft':xmlVal(x,'LocalDraft'),
-      'New':xmlVal(x,'NewMsg'),'Max':xmlVal(x,'LocalMax')});
-    updateTime();
+    var items={
+      'Local Inbox':{val:xmlVal(x,'LocalInbox'),type:'inbox'},
+      'Local Outbox':{val:xmlVal(x,'LocalOutbox'),type:'outbox'},
+      'Local Draft':{val:xmlVal(x,'LocalDraft'),type:'draft'},
+      'Unread':{val:xmlVal(x,'LocalUnread')},'New':{val:xmlVal(x,'NewMsg')},'Max':{val:xmlVal(x,'LocalMax')}
+    };
+    var h='<div class="info-grid">';
+    for(var k in items){
+      h+='<span class="info-label">'+k+'</span><span class="info-value" style="display:flex;align-items:center;gap:8px">'+(items[k].val||'0');
+      if(items[k].type&&parseInt(items[k].val)>0)h+='<span class="refresh-icon bi bi-trash3" style="font-size:.75rem;color:rgba(255,255,255,.15);cursor:pointer;transition:color .3s" onclick="clearBox(\''+items[k].type+'\',\''+k+'\')" onmouseover="this.style.color=\'#ff4d4d\'" onmouseout="this.style.color=\'\'"></span>';
+      h+='</span>';
+    }
+    h+='</div>'; b.innerHTML=h; updateTime();
   }).catch(function(e){b.innerHTML='<span style="color:#ff4d4d">Request failed: '+e.message+'</span>';});
 }
 
@@ -410,7 +424,7 @@ function loadSmsConfigXml(){
 // --- Inbox ---
 function clearInbox(){
   if(!confirm('Delete all messages from inbox?'))return;
-  fetch(API+'?action=clear-inbox').then(function(r){return r.text();}).then(function(t){
+  fetch(API+'?action=clear-box&type=inbox').then(function(r){return r.text();}).then(function(t){
     loadInbox();
     toast(t);
   }).catch(function(e){toast('Error: '+e.message);});

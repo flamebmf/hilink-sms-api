@@ -347,9 +347,10 @@ sub send_sms {
 }
 
 sub list_sms {
+    my $box_type = shift // 1;
     my $body = '<?xml version="1.0" encoding="UTF-8"?>'
         . '<request><PageIndex>1</PageIndex><ReadCount>50</ReadCount>'
-        . '<BoxType>1</BoxType><SortType>0</SortType>'
+        . '<BoxType>' . $box_type . '</BoxType><SortType>0</SortType>'
         . '<Ascending>0</Ascending><UnreadPreferred>0</UnreadPreferred></request>';
     return hi_post_xml('api/sms/sms-list', $body, "$MODEM/html/smsinbox.html");
 }
@@ -513,15 +514,18 @@ if ($action eq 'send') {
 } elsif ($action eq 'jobs') {
     print list_jobs();
 } elsif ($action eq 'list') {
-    print list_sms();
-} elsif ($action eq 'clear-inbox') {
-    my $list = list_sms();
+    print list_sms(1);
+} elsif ($action eq 'clear-box') {
+    my $type = $q->param('type') || 'inbox';
+    my %boxes = (inbox => 1, draft => 2, outbox => 3);
+    my $box = $boxes{$type} // 1;
+    my $list = list_sms($box);
     my @indexes = $list =~ /<Index>(\d+)<\/Index>/g;
     my $deleted = 0;
     for my $idx (@indexes) {
         $deleted++ if delete_sms($idx);
     }
-    log_msg('INFO', "clear-inbox: deleted $deleted / " . scalar(@indexes));
+    log_msg('INFO', "clear-box($type): deleted $deleted / " . scalar(@indexes));
     print "OK: deleted $deleted/" . scalar(@indexes);
 } elsif ($action eq 'delete') {
     print delete_sms($q->param('index') || 0) ? "OK" : "ERROR";
