@@ -61,6 +61,22 @@ chmod 660 /var/www/cgi-bin/.htpasswd
 systemctl restart httpd
 ```
 
+### Zabbix IP Exception
+
+By default, Basic Auth protects both the dashboard and CGI. To allow Zabbix server to send SMS without authentication, add your Zabbix server IP to `hilink-auth.conf`:
+
+```apache
+<RequireAny>
+  Require valid-user
+  Require ip 192.168.5.12   # <-- replace with your Zabbix server IP
+</RequireAny>
+```
+
+Then reload Apache:
+```bash
+systemctl reload httpd
+```
+
 ## Usage
 
 - Dashboard: `http://server/hilink-dash.html`
@@ -72,3 +88,5 @@ systemctl restart httpd
 Import `zabbix_hilink_sms_webhook.yaml` as a media type in Zabbix 6+.
 Configure user media with URL: `http://server/cgi-bin/sms-gw.pl`
 Parameters: `phone`, `msg` — script sends GET with `action=send`.
+
+Zabbix requests from the whitelisted IP bypass Basic Auth.
