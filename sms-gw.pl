@@ -515,6 +515,8 @@ if ($action eq 'send') {
     print list_jobs();
 } elsif ($action eq 'list') {
     print list_sms(1);
+} elsif ($action eq 'list-outbox') {
+    print list_sms(3);
 } elsif ($action eq 'clear-box') {
     my $type = $q->param('type') || 'inbox';
     my %boxes = (inbox => 1, draft => 2, outbox => 3);

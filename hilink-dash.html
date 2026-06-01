@@ -77,6 +77,7 @@ body { font-family: 'Roboto', sans-serif; background: var(--bg); color: var(--te
     <button class="nav-tab-btn" data-tab="sms">SMS</button>
     <button class="nav-tab-btn" data-tab="config">Config</button>
     <button class="nav-tab-btn" data-tab="inbox">Inbox</button>
+    <button class="nav-tab-btn" data-tab="sent">Sent</button>
     <button class="nav-tab-btn" data-tab="settings">Settings</button>
   </div>
 
@@ -151,6 +152,14 @@ body { font-family: 'Roboto', sans-serif; background: var(--bg); color: var(--te
     <div class="card-dash">
       <div class="card-dash-header"><span>SMS Inbox</span><span style="display:flex;gap:8px;align-items:center"><span class="refresh-icon bi bi-trash3" onclick="clearInbox()" title="Clear All" style="color:var(--muted);cursor:pointer;transition:color .3s" onmouseover="this.style.color='#ff4d4d'" onmouseout="this.style.color=''"></span><span class="refresh-icon bi bi-arrow-clockwise" onclick="loadInbox()"></span></span></div>
       <div class="card-dash-body" id="inboxBody"><span class="skeleton"></span></div>
+    </div>
+  </div>
+
+  <!-- Sent -->
+  <div class="tab-panel d-none" id="panel-sent">
+    <div class="card-dash">
+      <div class="card-dash-header"><span>Sent Messages</span><span style="display:flex;gap:8px;align-items:center"><span class="refresh-icon bi bi-trash3" onclick="clearBox('outbox','Sent')" title="Clear All" style="color:var(--muted);cursor:pointer;transition:color .3s" onmouseover="this.style.color='#ff4d4d'" onmouseout="this.style.color=''"></span><span class="refresh-icon bi bi-arrow-clockwise" onclick="loadOutbox()"></span></span></div>
+      <div class="card-dash-body" id="outboxBody"><span class="skeleton"></span></div>
     </div>
   </div>
 
@@ -256,6 +265,7 @@ function loadTab(name){
     case 'sms': loadSmsCount(); loadSendStatus(); break;
     case 'config': loadSmsConfig(); loadSmsConfigXml(); break;
     case 'inbox': loadInbox(); break;
+    case 'sent': loadOutbox(); break;
     case 'settings': break;
   }
 }
@@ -430,18 +440,25 @@ function clearInbox(){
   }).catch(function(e){toast('Error: '+e.message);});
 }
 
+function loadOutbox(){
+  var b=document.getElementById('outboxBody'); b.innerHTML='<span class="skeleton"></span>';
+  fetchApi('list-outbox').then(function(x){renderSmsTable(x,b);updateTime();}).catch(function(e){b.innerHTML='<span style="color:#ff4d4d">Request failed</span>';});
+}
+
+function renderSmsTable(xml,body){
+  var msgs=xml.match(/<Message>[\s\S]*?<\/Message>/g);
+  if(!msgs||!msgs.length){body.innerHTML='<p style="color:var(--muted)">No messages</p>';return;}
+  var h='<table class="table-custom"><thead><tr><th>#</th><th>Phone</th><th>Message</th><th>Date</th></tr></thead><tbody>';
+  for(var i=0;i<msgs.length;i++){
+    var m=msgs[i];
+    h+='<tr><td>'+xmlVal(m,'Index')+'</td><td>'+esc(xmlVal(m,'Phone'))+'</td><td>'+esc(xmlVal(m,'Content'))+'</td><td style="white-space:nowrap;font-size:.75rem">'+fmtDate(xmlVal(m,'Date'))+'</td></tr>';
+  }
+  h+='</tbody></table>'; body.innerHTML=h;
+}
+
 function loadInbox(){
   var b=document.getElementById('inboxBody'); b.innerHTML='<span class="skeleton"></span>';
-  fetchApi('list').then(function(x){
-    var msgs=x.match(/<Message>[\s\S]*?<\/Message>/g);
-    if(!msgs||!msgs.length){b.innerHTML='<p style="color:var(--muted)">No messages</p>';return;}
-    var h='<table class="table-custom"><thead><tr><th>#</th><th>From</th><th>Message</th><th>Date</th></tr></thead><tbody>';
-    for(var i=0;i<msgs.length;i++){
-      var m=msgs[i];
-      h+='<tr><td>'+xmlVal(m,'Index')+'</td><td>'+esc(xmlVal(m,'Phone'))+'</td><td>'+esc(xmlVal(m,'Content'))+'</td><td style="white-space:nowrap;font-size:.75rem">'+fmtDate(xmlVal(m,'Date'))+'</td></tr>';
-    }
-    h+='</tbody></table>'; b.innerHTML=h; updateTime();
-  }).catch(function(e){b.innerHTML='<span style="color:#ff4d4d">Request failed: '+e.message+'</span>';});
+  fetchApi('list').then(function(x){renderSmsTable(x,b);updateTime();}).catch(function(e){b.innerHTML='<span style="color:#ff4d4d">Request failed: '+e.message+'</span>';});
 }
 
 function esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
