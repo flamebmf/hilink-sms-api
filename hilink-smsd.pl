@@ -1,4 +1,6 @@
 #!/usr/bin/perl
+# Copyright (c) 2026 PlurumTech.com. All rights reserved.
+# See LICENSE for terms.
 use strict;
 use warnings;
 use IO::Socket::INET;

@@ -1,5 +1,8 @@
 # Hilink SMS Gateway Work Status
 
+Copyright (c) 2026 PlurumTech.com. All rights reserved.
+See LICENSE for terms.
+
 ## 2026-05-06
 
 Status: initial Perl SMS send fixes applied.
@@ -26,12 +29,12 @@ Next:
 - If error `125001` appears, refresh `SesTokInfo` and retry once with a new token/session.
 
 Update:
-- CGI endpoint `http://192.168.5.20/cgi-bin/sms-gw.pl` responds with `OK` for the default action.
+- CGI endpoint `http://<server>/cgi-bin/sms-gw.pl` responds with `OK` for the default action.
 - `action=list` returned modem error `125003`, so `sms-gw.pl` now retries POST requests once after refreshing `SesTokInfo` for token/session errors `125001`, `125002`, and `125003`.
 - Added `action=debug` to report whether `SesTokInfo` returns a session and token.
 
 Proxy/API discovery:
-- `http://192.168.5.20:8080` is a proxy to the modem.
+- There is a proxy to the modem on port 8080.
 - GET endpoints work through the proxy, including `/api/sms/config` and `/api/sms/sms-count`.
 - POST `/api/sms/sms-list` with old `SesTokInfo` token returns `125003`.
 - WebUI `getToken` calls `/api/webserver/token` and stores `token.substr(32)` as the POST token.
@@ -63,7 +66,7 @@ Remote probe result:
 - Added `action=send-status` for checking `/api/sms/send-status` after an SMS send attempt.
 
 Send-status result:
-- `/api/sms/send-status` returned `FailPhone=79219615926`, so SMS API accepted the send task but modem/network rejected the recipient/message.
+- `/api/sms/send-status` returned `FailPhone=XXXXXXXXXXX`, so SMS API accepted the send task but modem/network rejected the recipient/message.
 - WebUI phone validation allows a leading `+`, but `sms-gw.pl` stripped it. Updated phone normalization to preserve one leading `+`.
 - `Reserved` is now configurable with `reserved=` and defaults to `0` instead of fixed `1`.
 - `Sca` is now configurable with `sca=` for testing SMS center behavior.
@@ -97,10 +100,8 @@ Changed:
 - Git: коммит `61d13e7`, `3e6bf38`.
 
 Verified:
-- `curl -u admin:hilink2026 '...?action=change-password&old=hilink2026&new=test321'` → OK
-- `curl -u admin:test321 http://.../hilink-dash.html` → 200
-- `curl -u admin:hilink2026 http://.../hilink-dash.html` → 401 (после смены)
-- Возврат к исходному паролю — OK.
+- `action=change-password&old=<old>&new=<new>` → OK
+- Dashboard доступен с новым паролем, старый → 401.
 
 ## 2026-06-01 — Dashboard redesigned in PlurumTech style
 
@@ -114,7 +115,7 @@ Changed:
 - Git: коммиты `e0fed44`, `40f42b9`, `456112a`, `ecbc383`, `88fcd9c`, `d495587`, `2562f41`, `cd842b9`, `0beb83c`.
 
 Verified:
-- `curl http://192.168.5.20/hilink-dash.html` → 200 OK.
+- Dashboard returns 200 OK.
 - Все табы загружают данные с CGI.
 
 ## Current Ready State
@@ -136,13 +137,13 @@ Core root causes solved:
 - WebUI token flow uses `/api/webserver/token`; WebUI stores `token.substr(32)` as the POST token, but raw POST now works with accepted token/session variants.
 
 Phone normalization:
-- `79219615926` becomes `+79219615926`.
-- `89219615926` becomes `+79219615926`.
-- `+79219615926` remains `+79219615926`.
+- `792...` becomes `+792...`.
+- `892...` becomes `+792...`.
+- `+792...` remains `+792...`.
 
 Main SMS actions:
-- `action=send&phone=79219615926&msg=test` - synchronous SMS send.
-- `action=send-async&phone=79219615926&msg=test` - forked background SMS send with job id.
+- `action=send&phone=+7XXXXXXXXXX&msg=test` - synchronous SMS send.
+- `action=send-async&phone=+7XXXXXXXXXX&msg=test` - forked background SMS send with job id.
 - `action=send-status` - modem send status.
 - `action=list` - SMS inbox list.
 - `action=delete&index=...` - delete SMS by index.
@@ -189,7 +190,7 @@ Findings:
 - Zabbix webhook POST method returned `OK` but SMS not delivered; `send-status` showed empty `SucPhone/FailPhone`.
 - Root cause: POST from Zabbix returned 200 with 2 bytes ("OK") but message content apparently not reaching modem.
 - Switched to GET-based webhook — Zabbix script now parses `value` as optional JSON string and issues GET request with query params.
-- Tested: `curl "http://192.168.5.20/cgi-bin/sms-gw.pl?action=send&phone=79219615926&msg=test"` confirmed working.
+- Tested: GET request with `action=send` confirmed working.
 - After re-importing YAML with GET method, SMS delivered via Zabbix alert.
 
 Changed:
@@ -207,7 +208,7 @@ Verified:
 
 ## 2026-06-01 — Web Dashboard UI added and deployed
 
-Status: Web dashboard at `http://192.168.5.20/hilink-dash.html` — shows device info, signal, network, SMS stats, config, inbox.
+Status: Web dashboard deployed — shows device info, signal, network, SMS stats, config, inbox.
 
 Changed:
 - Created `hilink-dash.html` — single-file Bootstrap dashboard with 6 tabs (Device, Signal, Network, SMS, Config, Inbox).
@@ -225,7 +226,7 @@ Changed:
 - Added `log_msg` sub with timestamp, level, client IP, PID.
 - `$LOG_FILE` = `/var/www/cgi-bin/log/hilink-sms.log` (in a `log/` subdir next to the script).
 - Logs: every incoming action, send_sms debug/ok/fail, unknown actions.
-- Deployed via SCP to `192.168.5.20` (SSH key auth).
+- Deployed via SCP (SSH key auth).
 - Created `/var/www/cgi-bin/log/` with 777 permissions (apache user needs write).
 
 Verified:

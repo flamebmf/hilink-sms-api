@@ -8,10 +8,10 @@ Copyright (c) 2026 PlurumTech.com. See [LICENSE](LICENSE) for terms.
 
 ```bash
 # CLI — directly to modem, no setup
-perl sms-gw.pl phone=79219615926 text="Hello"
+perl sms-gw.pl phone=+7XXXXXXXXXX text="Hello"
 
 # CGI — via Apache (after install)
-curl "http://host/cgi-bin/sms-gw.pl?action=send&phone=79219615926&msg=Hello"
+curl "http://host/cgi-bin/sms-gw.pl?action=send&phone=+7XXXXXXXXXX&msg=Hello"
 
 # Daemon — standalone HTTP
 perl hilink-smsd.pl --daemon --port 8080
@@ -47,7 +47,7 @@ Send SMS synchronously.
 **Response:** `OK` or `ERROR: <details>`
 
 ```bash
-curl "http://host/cgi-bin/sms-gw.pl?action=send&phone=79219615926&msg=Hello"
+curl "http://host/cgi-bin/sms-gw.pl?action=send&phone=+7XXXXXXXXXX&msg=Hello"
 ```
 
 #### `action=send-async`
@@ -61,7 +61,7 @@ Send SMS in background (fork). Returns job ID immediately.
 **Response:** XML with `<id>` and `<status>`.
 
 ```bash
-curl "http://host/cgi-bin/sms-gw.pl?action=send-async&phone=79219615926&msg=Hello"
+curl "http://host/cgi-bin/sms-gw.pl?action=send-async&phone=+7XXXXXXXXXX&msg=Hello"
 ```
 
 #### `action=send-status`
@@ -191,8 +191,8 @@ Change Apache Basic Auth password.
 Both talk directly to the modem at `192.168.8.1`.
 
 ```bash
-perl sms-gw.pl phone=79219615926 text="Alert message"
-perl hilink-sms-cli.pl phone=79219615926 msg="Alert message"
+perl sms-gw.pl phone=+7XXXXXXXXXX text="Alert message"
+perl hilink-sms-cli.pl phone=+7XXXXXXXXXX msg="Alert message"
 ```
 
 ### Arguments
@@ -212,7 +212,7 @@ perl hilink-sms-cli.pl phone=79219615926 msg="Alert message"
 ### Quiet mode (`hilink-sms-cli.pl` only)
 
 ```bash
-perl hilink-sms-cli.pl -q phone=79219615926 text="Alert"
+perl hilink-sms-cli.pl -q phone=+7XXXXXXXXXX text="Alert"
 ```
 No output, exit code only — for scripts and cron.
 

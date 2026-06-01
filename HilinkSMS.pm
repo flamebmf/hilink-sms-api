@@ -1,3 +1,6 @@
+# Copyright (c) 2026 PlurumTech.com. All rights reserved.
+# See LICENSE for terms.
+
 package HilinkSMS;
 use strict;
 use warnings;

@@ -1,3 +1,6 @@
+# Copyright (c) 2026 PlurumTech.com. All rights reserved.
+# See LICENSE for terms.
+
 zabbix_export:
   version: '6.0'
   media_types:
@@ -9,7 +12,7 @@ zabbix_export:
         - name: message
           value: '{ALERT.MESSAGE}'
         - name: url
-          value: 'http://192.168.5.20/cgi-bin/sms-gw.pl'
+          value: 'http://<SERVER>/cgi-bin/sms-gw.pl'
       script: |
         var params = value;
         if (typeof params === 'string') {
@@ -38,7 +41,7 @@ zabbix_export:
 
         var phone = pick(['phone','sendto','to','alertsendto','alert.sendto'], '');
         var message = pick(['message','msg','alertmessage','alert.message'], '');
-        var baseUrl = pick(['url','endpoint','gateway'], 'http://192.168.5.20/cgi-bin/sms-gw.pl');
+        var baseUrl = pick(['url','endpoint','gateway'], 'http://<SERVER>/cgi-bin/sms-gw.pl');
 
         if (!phone) {
             throw 'Phone number is not provided.';

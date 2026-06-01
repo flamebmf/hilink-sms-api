@@ -1,4 +1,6 @@
 #!/usr/bin/perl
+# Copyright (c) 2026 PlurumTech.com. All rights reserved.
+# See LICENSE for terms.
 use strict;
 use warnings;
 use FindBin;
@@ -24,7 +26,7 @@ else {
         elsif (/^(?:msg|text)=(.+)/) { $text  = $1 }
     }
     unless ($phone && $text) {
-        print STDERR "Usage: sms-gw.pl phone=79219615926 text=\"Hello\"\n";
+        print STDERR "Usage: sms-gw.pl phone=+7XXXXXXXXXX text=\"Hello\"\n";
         exit 1;
     }
     $phone = normalize_phone($phone);

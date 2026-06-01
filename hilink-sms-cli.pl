@@ -1,4 +1,6 @@
 #!/usr/bin/perl
+# Copyright (c) 2026 PlurumTech.com. All rights reserved.
+# See LICENSE for terms.
 use strict;
 use warnings;
 use FindBin;
@@ -18,7 +20,7 @@ for (@ARGV) {
 }
 
 unless ($phone && $text) {
-    print STDERR "Usage: $0 phone=79219615926 text=\"Hello world\"\n";
+    print STDERR "Usage: $0 phone=+7XXXXXXXXXX text=\"Hello world\"\n";
     exit 1;
 }
 

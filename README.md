@@ -71,7 +71,7 @@ By default, Basic Auth protects both the dashboard and CGI. To allow Zabbix serv
 ```apache
 <RequireAny>
   Require valid-user
-  Require ip 192.168.5.12   # <-- replace with your Zabbix server IP
+  Require ip <ZABBIX_SERVER_IP>   # <-- replace with your Zabbix server IP
 </RequireAny>
 ```
 
@@ -84,7 +84,7 @@ systemctl reload httpd
 
 - Dashboard: `http://server/hilink-dash.html`
 - API (CGI): `http://server/cgi-bin/sms-gw.pl?action=send&phone=+71234567890&msg=Hello`
-- API (CLI): `perl sms-gw.pl phone=79219615926 text="Alert"`
+- API (CLI): `perl sms-gw.pl phone=+7XXXXXXXXXX text="Alert"`
 - Default credentials: `admin` / `hilink2026`
 
 ## Zabbix Integration
@@ -100,9 +100,9 @@ Zabbix requests from the whitelisted IP bypass Basic Auth.
 Send SMS directly from command line — for cron, scripts, monitoring:
 
 ```bash
-perl sms-gw.pl phone=79219615926 text="Alert: server down"
+perl sms-gw.pl phone=+7XXXXXXXXXX text="Alert: server down"
 # or
-perl hilink-sms-cli.pl phone=79219615926 msg="Hello world"
+perl hilink-sms-cli.pl phone=+7XXXXXXXXXX msg="Hello world"
 ```
 
 Both scripts talk directly to the modem at `192.168.8.1` with zero setup.
