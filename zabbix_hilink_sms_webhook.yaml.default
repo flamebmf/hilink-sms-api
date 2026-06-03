@@ -13,6 +13,15 @@ zabbix_export:
           value: '{ALERT.MESSAGE}'
         - name: url
           value: 'http://<SERVER>/cgi-bin/sms-gw.pl'
+      message_templates:
+        - event_source: TRIGGERS
+          operation_mode: PROBLEM
+          subject: '{ALERT.SUBJECT}'
+          body: '{ALERT.MESSAGE}'
+        - event_source: TRIGGERS
+          operation_mode: RECOVERY
+          subject: '{ALERT.SUBJECT}'
+          body: '{ALERT.MESSAGE}'
       script: |
         var params = value;
         if (typeof params === 'string') {
