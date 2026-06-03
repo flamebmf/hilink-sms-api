@@ -26,3 +26,8 @@ Thumbs.db
 # Working configs (not for public)
 hilink-auth.conf
 zabbix_hilink_sms_webhook.yaml
+
+# Random media files
+card.jpg
+*.jpg
+*.png
