@@ -16,12 +16,10 @@ zabbix_export:
       message_templates:
         - event_source: TRIGGERS
           operation_mode: PROBLEM
-          subject: '{ALERT.SUBJECT}'
-          body: '{ALERT.MESSAGE}'
+          subject: 'SMS: {ALERT.SUBJECT}'
         - event_source: TRIGGERS
           operation_mode: RECOVERY
-          subject: '{ALERT.SUBJECT}'
-          body: '{ALERT.MESSAGE}'
+          subject: 'OK: {ALERT.SUBJECT}'
       script: |
         var params = value;
         if (typeof params === 'string') {
