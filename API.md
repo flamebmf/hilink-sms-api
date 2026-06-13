@@ -97,7 +97,7 @@ Delete all messages in a box.
 |-------|---------|-------------|
 | `type` | `inbox` | `inbox` (BoxType=1), `outbox` (BoxType=2), `draft` (BoxType=3) |
 
-**Response:** `OK: deleted X/Y`
+**Response:** `OK: deleted X` (loops through all pages, up to 5000 messages)
 
 ---
 

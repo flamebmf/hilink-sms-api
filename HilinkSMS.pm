@@ -14,7 +14,7 @@ use CGI;
 
 our @EXPORT_OK = qw(
     log_msg process_action normalize_phone
-    send_sms send_sms_async list_sms delete_sms send_status
+    send_sms send_sms_async list_sms delete_sms send_status clear_box
     api_get api_get_named api_post_named api_list_xml
     list_jobs get_job_xml debug_session probe_sms_list
     hi_post_xml hi_raw_post hi_get_session hi_get_post_token
@@ -406,12 +406,31 @@ sub send_sms_async {
 }
 
 sub list_sms {
-    my $box_type = shift // 1;
+    my ($box_type, $page) = @_;
+    $box_type //= 1;
+    $page     //= 1;
     my $body = '<?xml version="1.0" encoding="UTF-8"?>'
-        . '<request><PageIndex>1</PageIndex><ReadCount>50</ReadCount>'
+        . '<request><PageIndex>' . $page . '</PageIndex><ReadCount>50</ReadCount>'
         . '<BoxType>' . $box_type . '</BoxType><SortType>0</SortType>'
         . '<Ascending>0</Ascending><UnreadPreferred>0</UnreadPreferred></request>';
     return hi_post_xml('api/sms/sms-list', $body, "$MODEM/html/smsinbox.html");
+}
+
+sub clear_box {
+    my ($box) = @_;
+    my $total = 0;
+    for my $page (1 .. 100) {
+        my $list = list_sms($box, $page);
+        my @indexes = $list =~ /<Index>(\d+)<\/Index>/g;
+        last unless @indexes;
+        my $deleted = 0;
+        for my $idx (@indexes) {
+            $deleted++ if delete_sms($idx);
+        }
+        $total += $deleted;
+        last if scalar(@indexes) < 50;
+    }
+    return $total;
 }
 
 sub delete_sms {
@@ -535,14 +554,9 @@ sub process_action {
         my $type = $q->param('type') || 'inbox';
         my %boxes = (inbox => 1, outbox => 2, draft => 3);
         my $box = $boxes{$type} // 1;
-        my $list = list_sms($box);
-        my @indexes = $list =~ /<Index>(\d+)<\/Index>/g;
-        my $deleted = 0;
-        for my $idx (@indexes) {
-            $deleted++ if delete_sms($idx);
-        }
-        log_msg('INFO', "clear-box($type): deleted $deleted / " . scalar(@indexes));
-        return "OK: deleted $deleted/" . scalar(@indexes);
+        my $deleted = clear_box($box);
+        log_msg('INFO', "clear-box($type): deleted $deleted");
+        return "OK: deleted $deleted";
     }
     elsif ($action eq 'delete') {
         return delete_sms($q->param('index') || 0) ? "OK" : "ERROR";
