@@ -198,8 +198,25 @@ body { font-family: 'Roboto', sans-serif; background: var(--bg); color: var(--te
   </svg>
   <div style="margin-top:2px;font-size:.82rem;font-weight:900;letter-spacing:-.3px;color:#fff;font-family:'Roboto',sans-serif">
     Plurum<span style="background:linear-gradient(135deg,#00d4ff,#7b61ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Tech</span>
+    </div>
+    <div class="card-dash" style="margin-top:16px">
+      <div class="card-dash-header">Modem Authentication</div>
+      <div class="card-dash-body" style="max-width:400px">
+        <div class="tag-muted" style="margin-bottom:12px">Set credentials if modem web UI has login/password. Leave blank for no auth.</div>
+        <div style="margin-bottom:10px">
+          <label style="color:var(--muted);font-size:.78rem;display:block;margin-bottom:4px">Username</label>
+          <input type="text" id="modemUser" placeholder="admin" style="width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:8px 12px;color:var(--text);font-size:.85rem">
+        </div>
+        <div style="margin-bottom:10px">
+          <label style="color:var(--muted);font-size:.78rem;display:block;margin-bottom:4px">Password</label>
+          <input type="password" id="modemPass" placeholder="modem password" style="width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:8px 12px;color:var(--text);font-size:.85rem">
+        </div>
+        <button onclick="setModemAuth()" style="background:linear-gradient(135deg,#00d4ff,#7b61ff);border:none;color:#04070d;padding:8px 24px;border-radius:8px;font-weight:700;font-size:.82rem;cursor:pointer;margin-right:8px">Save</button>
+        <button onclick="clearModemAuth()" style="background:transparent;border:1px solid rgba(255,255,255,.15);color:var(--muted);padding:8px 24px;border-radius:8px;font-weight:700;font-size:.82rem;cursor:pointer">Clear</button>
+        <div id="modemResult" style="margin-top:8px;font-size:.8rem"></div>
+      </div>
+    </div>
   </div>
-</div>
 
 <div class="toast-wrap" id="toastWrap"></div>
 
@@ -282,6 +299,27 @@ function changePassword(){
   res.innerHTML='<span class="skeleton"></span>';
   fetch(API+'?action=change-password&old='+encodeURIComponent(oldP)+'&new='+encodeURIComponent(newP)).then(function(r){return r.text();}).then(function(t){
     if(t==='OK'){res.innerHTML='<span style="color:#00d4ff">Password changed</span>';document.getElementById('oldPass').value='';document.getElementById('newPass').value='';document.getElementById('confirmPass').value='';}
+    else{res.innerHTML='<span style="color:#ff4d4d">'+esc(t)+'</span>';}
+  }).catch(function(e){res.innerHTML='<span style="color:#ff4d4d">Request failed</span>';});
+}
+
+function setModemAuth(){
+  var user=document.getElementById('modemUser').value;
+  var pass=document.getElementById('modemPass').value;
+  var res=document.getElementById('modemResult');
+  if(!user||!pass){res.innerHTML='<span style="color:#ff4d4d">Fill both fields</span>';return;}
+  res.innerHTML='<span class="skeleton"></span>';
+  fetch(API+'?action=set-modem-auth&user='+encodeURIComponent(user)+'&pass='+encodeURIComponent(pass)).then(function(r){return r.text();}).then(function(t){
+    if(t.indexOf('OK')===0){res.innerHTML='<span style="color:#00d4ff">'+esc(t)+'</span>';}
+    else{res.innerHTML='<span style="color:#ff4d4d">'+esc(t)+'</span>';}
+  }).catch(function(e){res.innerHTML='<span style="color:#ff4d4d">Request failed</span>';});
+}
+
+function clearModemAuth(){
+  var res=document.getElementById('modemResult');
+  res.innerHTML='<span class="skeleton"></span>';
+  fetch(API+'?action=clear-modem-auth').then(function(r){return r.text();}).then(function(t){
+    if(t.indexOf('OK')===0){res.innerHTML='<span style="color:#00d4ff">Credentials cleared</span>';document.getElementById('modemUser').value='';document.getElementById('modemPass').value='';}
     else{res.innerHTML='<span style="color:#ff4d4d">'+esc(t)+'</span>';}
   }).catch(function(e){res.innerHTML='<span style="color:#ff4d4d">Request failed</span>';});
 }

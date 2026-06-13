@@ -11,15 +11,17 @@ use IO::Socket::INET;
 use POSIX qw(strftime setsid);
 use HTML::Entities;
 use CGI;
+use Digest::SHA qw(sha256);
+use MIME::Base64 qw(encode_base64);
 
 our @EXPORT_OK = qw(
     log_msg process_action normalize_phone
     send_sms send_sms_async list_sms delete_sms send_status clear_box
     api_get api_get_named api_post_named api_list_xml
     list_jobs get_job_xml debug_session probe_sms_list
-    hi_post_xml hi_raw_post hi_get_session hi_get_post_token
+    hi_post_xml hi_raw_post hi_get_session hi_get_post_token hi_login
     job_to_xml
-    $MODEM $JOB_DIR $LOG_FILE $HTPASSWD_FILE
+    $MODEM $JOB_DIR $LOG_FILE $HTPASSWD_FILE $MODEM_USER $MODEM_PASS
     %GET_API %POST_API
 );
 
@@ -27,6 +29,10 @@ our $MODEM       = 'http://192.168.8.1';
 our $JOB_DIR     = '/tmp/hilink-sms-jobs';
 our $LOG_FILE    = '/var/www/cgi-bin/log/hilink-sms.log';
 our $HTPASSWD_FILE = '/var/www/cgi-bin/.htpasswd';
+our $MODEM_CREDS_FILE = '/var/www/cgi-bin/.modem-creds';
+our $MODEM_USER  = undef;
+our $MODEM_PASS  = undef;
+our $LOGIN_DONE  = 0;
 
 our %GET_API = (
     monitoringStatus => 'api/monitoring/status',
@@ -118,6 +124,58 @@ sub log_msg {
 sub modem_host_port {
     my ($host, $port) = $MODEM =~ m{^http://([^/:]+)(?::(\d+))?}i;
     return ($host, $port || 80);
+}
+
+sub load_modem_creds {
+    return unless -f $MODEM_CREDS_FILE;
+    open my $fh, '<', $MODEM_CREDS_FILE or return;
+    chomp(my $user = <$fh> // '');
+    chomp(my $pass = <$fh> // '');
+    close $fh;
+    $MODEM_USER = $user if length $user;
+    $MODEM_PASS = $pass if length $pass;
+}
+
+sub save_modem_creds {
+    my ($user, $pass) = @_;
+    open my $fh, '>', $MODEM_CREDS_FILE or return 0;
+    print {$fh} "$user\n$pass\n";
+    close $fh;
+    $MODEM_USER = $user;
+    $MODEM_PASS = $pass;
+    $LOGIN_DONE = 0;
+    return 1;
+}
+
+sub hi_login {
+    return 1 unless $MODEM_USER && $MODEM_PASS;
+    return 1 if $LOGIN_DONE;
+
+    my $resp = $ua->get("$MODEM/api/webserver/SesTokInfo");
+    return 0 unless $resp->is_success;
+    my $c = $resp->decoded_content;
+    my ($token) = $c =~ /<TokInfo>(.+?)<\/TokInfo>/;
+    return 0 unless $token;
+
+    my $hash = encode_base64(
+        sha256($MODEM_USER . encode_base64(sha256($MODEM_PASS)) . $token)
+    );
+    chomp $hash;
+
+    my $body = '<?xml version="1.0" encoding="UTF-8"?>'
+        . '<request><Username>' . xml_escape($MODEM_USER) . '</Username>'
+        . '<Password>' . $hash . '</Password>'
+        . '<password_type>4</password_type></request>';
+
+    my $login_resp = $ua->post(
+        "$MODEM/api/user/login",
+        'Content-Type' => 'application/x-www-form-urlencoded; charset=UTF-8',
+        'Content' => $body,
+    );
+
+    $LOGIN_DONE = 1 if $login_resp->is_success && $login_resp->decoded_content =~ /<response>OK<\/response>/;
+    log_msg($LOGIN_DONE ? 'INFO' : 'ERROR', "hi_login: " . ($LOGIN_DONE ? 'OK' : 'FAIL'));
+    return $LOGIN_DONE;
 }
 
 sub ensure_job_dir {
@@ -235,6 +293,7 @@ sub hi_get_session {
 }
 
 sub hi_get_post_token {
+    hi_login();
     my $resp = $ua->get("$MODEM/api/webserver/token");
     return () unless $resp->is_success;
 
@@ -609,6 +668,20 @@ sub process_action {
             } else { return "ERROR: hash failed"; }
         } else { return "ERROR: wrong password"; }
     }
+    elsif ($action eq 'set-modem-auth') {
+        my $user = $q->param('user') || '';
+        my $pass = $q->param('pass') || '';
+        return "ERROR: user and pass required" unless $user && $pass;
+        save_modem_creds($user, $pass);
+        return "OK: modem credentials saved";
+    }
+    elsif ($action eq 'clear-modem-auth') {
+        unlink $MODEM_CREDS_FILE;
+        $MODEM_USER = undef;
+        $MODEM_PASS = undef;
+        $LOGIN_DONE = 0;
+        return "OK: modem credentials cleared";
+    }
     elsif ($action eq 'sms-config-xml') {
         return api_get('config/sms/config.xml');
     }
@@ -617,5 +690,7 @@ sub process_action {
         return "OK";
     }
 }
+
+load_modem_creds();
 
 1;
