@@ -71,7 +71,7 @@ body { font-family: 'Roboto', sans-serif; background: var(--bg); color: var(--te
   </div>
 
   <div class="nav-tabs-custom" id="mainTabs">
-    <button class="nav-tab-btn active" data-tab="device">Device</button>
+    <button class="nav-tab-btn" data-tab="device">Device</button>
     <button class="nav-tab-btn" data-tab="signal">Signal</button>
     <button class="nav-tab-btn" data-tab="network">Network</button>
     <button class="nav-tab-btn" data-tab="sms">SMS</button>
@@ -254,6 +254,7 @@ document.querySelectorAll('.nav-tab-btn').forEach(function(btn){
     document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.add('d-none');});
     var panel=document.getElementById('panel-'+this.dataset.tab);
     if(panel){panel.classList.remove('d-none'); loadTab(this.dataset.tab);}
+    localStorage.setItem('hilinkTab', this.dataset.tab);
   });
 });
 
@@ -471,7 +472,17 @@ function refreshAll(){
 
 document.querySelectorAll('.nav-tab-btn').forEach(function(t){t.addEventListener('shown',function(){});});
 setInterval(refreshAll,30000);
-loadDeviceInfo();
+
+var savedTab = localStorage.getItem('hilinkTab') || 'device';
+var btn = document.querySelector('.nav-tab-btn[data-tab="' + savedTab + '"]');
+if (btn) {
+  document.querySelectorAll('.nav-tab-btn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.add('d-none');});
+  var panel = document.getElementById('panel-' + savedTab);
+  if (panel) { panel.classList.remove('d-none'); loadTab(savedTab); }
+}
+else { loadDeviceInfo(); }
 </script>
 </body>
 </html>
