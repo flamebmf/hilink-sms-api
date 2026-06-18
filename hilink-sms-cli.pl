@@ -3,8 +3,9 @@
 # See LICENSE for terms.
 use strict;
 use warnings;
-use FindBin;
-use lib $FindBin::Bin;
+use Cwd 'abs_path';
+use File::Basename 'dirname';
+BEGIN { unshift @INC, dirname(abs_path($0)); }
 use HilinkSMS qw(send_sms normalize_phone log_msg);
 
 $| = 1;

@@ -6,8 +6,9 @@ use warnings;
 use IO::Socket::INET;
 use POSIX qw(strftime);
 use Getopt::Long qw(:config no_ignore_case);
-use FindBin;
-use lib $FindBin::Bin;
+use Cwd 'abs_path';
+use File::Basename 'dirname';
+BEGIN { unshift @INC, dirname(abs_path($0)); }
 use HilinkSMS qw(process_action $MODEM);
 
 $| = 1;
